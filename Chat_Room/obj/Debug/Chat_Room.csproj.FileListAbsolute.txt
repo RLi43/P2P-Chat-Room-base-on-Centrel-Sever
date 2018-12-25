@@ -1,0 +1,10 @@
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\bin\Debug\Chat_Room.exe.config
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\bin\Debug\Chat_Room.exe
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\bin\Debug\Chat_Room.pdb
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.csprojResolveAssemblyReference.cache
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.Login.resources
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.Properties.Resources.resources
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.csproj.GenerateResource.Cache
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.exe
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.pdb
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.MainWin.resources
