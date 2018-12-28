@@ -28,15 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("我");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("我的好友", new System.Windows.Forms.TreeNode[] {
-            treeNode1});
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("李姜帆");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("星标", new System.Windows.Forms.TreeNode[] {
-            treeNode3});
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWin));
             this.panel1 = new System.Windows.Forms.Panel();
-            this.treeView_Frds = new System.Windows.Forms.TreeView();
             this.button_find = new System.Windows.Forms.Button();
             this.textBox_find = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -48,6 +41,11 @@
             this.button3 = new System.Windows.Forms.Button();
             this.button_img = new System.Windows.Forms.Button();
             this.button_send = new System.Windows.Forms.Button();
+            this.listView_Frds = new System.Windows.Forms.ListView();
+            this.ID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.IP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.在线 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.昵称 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -55,38 +53,13 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.treeView_Frds);
+            this.panel1.Controls.Add(this.listView_Frds);
             this.panel1.Controls.Add(this.button_find);
             this.panel1.Controls.Add(this.textBox_find);
             this.panel1.Location = new System.Drawing.Point(13, 13);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(385, 904);
+            this.panel1.Size = new System.Drawing.Size(689, 1104);
             this.panel1.TabIndex = 0;
-            // 
-            // treeView_Frds
-            // 
-            this.treeView_Frds.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.treeView_Frds.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.treeView_Frds.LabelEdit = true;
-            this.treeView_Frds.LineColor = System.Drawing.Color.DarkCyan;
-            this.treeView_Frds.Location = new System.Drawing.Point(3, 4);
-            this.treeView_Frds.Name = "treeView_Frds";
-            treeNode1.Name = "self";
-            treeNode1.Text = "我";
-            treeNode2.Name = "Root";
-            treeNode2.NodeFont = new System.Drawing.Font("方正宋刻本秀楷简体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            treeNode2.Text = "我的好友";
-            treeNode3.Name = "2016011819";
-            treeNode3.Text = "李姜帆";
-            treeNode4.Name = "star";
-            treeNode4.NodeFont = new System.Drawing.Font("方正宋刻本秀楷简体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            treeNode4.Text = "星标";
-            this.treeView_Frds.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode2,
-            treeNode4});
-            this.treeView_Frds.ShowLines = false;
-            this.treeView_Frds.Size = new System.Drawing.Size(379, 849);
-            this.treeView_Frds.TabIndex = 5;
             // 
             // button_find
             // 
@@ -94,21 +67,22 @@
             this.button_find.FlatAppearance.BorderSize = 0;
             this.button_find.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_find.Font = new System.Drawing.Font("方正清刻本悦宋简体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_find.Location = new System.Drawing.Point(289, 857);
+            this.button_find.Location = new System.Drawing.Point(593, 1052);
             this.button_find.Name = "button_find";
             this.button_find.Size = new System.Drawing.Size(93, 43);
             this.button_find.TabIndex = 4;
             this.button_find.Text = "查找";
             this.button_find.UseVisualStyleBackColor = false;
+            this.button_find.Click += new System.EventHandler(this.button_find_Click);
             // 
             // textBox_find
             // 
             this.textBox_find.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox_find.Font = new System.Drawing.Font("微软雅黑", 10.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.textBox_find.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.textBox_find.Location = new System.Drawing.Point(3, 859);
+            this.textBox_find.Location = new System.Drawing.Point(3, 1059);
             this.textBox_find.Name = "textBox_find";
-            this.textBox_find.Size = new System.Drawing.Size(280, 36);
+            this.textBox_find.Size = new System.Drawing.Size(584, 36);
             this.textBox_find.TabIndex = 0;
             this.textBox_find.Text = "学号/群号";
             this.textBox_find.Click += new System.EventHandler(this.textBox_find_Click);
@@ -119,9 +93,9 @@
             this.panel2.Controls.Add(this.button_detail);
             this.panel2.Controls.Add(this.label_RoomName);
             this.panel2.Controls.Add(this.richTextBox_output);
-            this.panel2.Location = new System.Drawing.Point(405, 13);
+            this.panel2.Location = new System.Drawing.Point(708, 17);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1057, 788);
+            this.panel2.Size = new System.Drawing.Size(1057, 984);
             this.panel2.TabIndex = 1;
             // 
             // button_detail
@@ -157,7 +131,7 @@
             this.richTextBox_output.Name = "richTextBox_output";
             this.richTextBox_output.ReadOnly = true;
             this.richTextBox_output.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.richTextBox_output.Size = new System.Drawing.Size(1051, 730);
+            this.richTextBox_output.Size = new System.Drawing.Size(1051, 926);
             this.richTextBox_output.TabIndex = 4;
             this.richTextBox_output.Text = "";
             // 
@@ -167,7 +141,7 @@
             this.panel3.Controls.Add(this.button3);
             this.panel3.Controls.Add(this.button_img);
             this.panel3.Controls.Add(this.button_send);
-            this.panel3.Location = new System.Drawing.Point(405, 807);
+            this.panel3.Location = new System.Drawing.Point(705, 1007);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(1057, 110);
             this.panel3.TabIndex = 2;
@@ -221,18 +195,60 @@
             this.button_send.TabIndex = 1;
             this.button_send.Text = "发送";
             this.button_send.UseVisualStyleBackColor = false;
+            this.button_send.Click += new System.EventHandler(this.button_send_Click);
+            // 
+            // listView_Frds
+            // 
+            this.listView_Frds.AllowColumnReorder = true;
+            this.listView_Frds.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.昵称,
+            this.在线,
+            this.ID,
+            this.IP});
+            this.listView_Frds.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.listView_Frds.ForeColor = System.Drawing.Color.DarkGreen;
+            this.listView_Frds.Location = new System.Drawing.Point(3, 4);
+            this.listView_Frds.MultiSelect = false;
+            this.listView_Frds.Name = "listView_Frds";
+            this.listView_Frds.ShowItemToolTips = true;
+            this.listView_Frds.Size = new System.Drawing.Size(683, 1042);
+            this.listView_Frds.TabIndex = 7;
+            this.listView_Frds.UseCompatibleStateImageBehavior = false;
+            this.listView_Frds.View = System.Windows.Forms.View.Details;
+            // 
+            // ID
+            // 
+            this.ID.Text = "ID";
+            this.ID.Width = 117;
+            // 
+            // IP
+            // 
+            this.IP.Text = "IP";
+            this.IP.Width = 133;
+            // 
+            // 在线
+            // 
+            this.在线.Text = "在线状态";
+            this.在线.Width = 97;
+            // 
+            // 昵称
+            // 
+            this.昵称.Text = "昵称";
+            this.昵称.Width = 92;
             // 
             // MainWin
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1474, 929);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(192F, 192F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.AutoSize = true;
+            this.ClientSize = new System.Drawing.Size(1774, 1129);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainWin";
             this.Text = "网上聊天室";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWin_FormClosing);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
@@ -245,7 +261,6 @@
         #endregion
 
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.TreeView treeView_Frds;
         private System.Windows.Forms.Button button_find;
         private System.Windows.Forms.TextBox textBox_find;
         private System.Windows.Forms.Panel panel2;
@@ -257,5 +272,10 @@
         private System.Windows.Forms.Button button_img;
         private System.Windows.Forms.Button button_send;
         private System.Windows.Forms.Button button_detail;
+        private System.Windows.Forms.ListView listView_Frds;
+        private System.Windows.Forms.ColumnHeader ID;
+        private System.Windows.Forms.ColumnHeader IP;
+        private System.Windows.Forms.ColumnHeader 在线;
+        private System.Windows.Forms.ColumnHeader 昵称;
     }
 }

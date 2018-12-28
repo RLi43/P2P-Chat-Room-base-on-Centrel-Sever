@@ -1,0 +1,14 @@
+{
+  "ProjectFilePath": "c:\\Users\\Robot.Li\\Desktop\\计网\\dzy1\\Chat_Room\\Chat_Room\\Chat_Room.csproj",
+  "TargetFramework": "v4.6.1",
+  "TagHelpers": [],
+  "Configuration": {
+    "ConfigurationName": "UnsupportedRazor",
+    "LanguageVersion": "1.0",
+    "Extensions": [
+      {
+        "ExtensionName": "UnsupportedRazorExtension"
+      }
+    ]
+  }
+}
