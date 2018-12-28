@@ -8,3 +8,4 @@ C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.cs
 C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.exe
 C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.pdb
 C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.MainWin.resources
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.text.resources

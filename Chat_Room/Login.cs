@@ -79,7 +79,10 @@ namespace Chat_Room
 
         private void Login_KeyPress(object sender, KeyPressEventArgs e)
         {
-
+            if (e.KeyChar == 13)
+            {
+                button1_Click(sender, e);
+            }
         }
 
         private void Login_KeyDown(object sender, KeyEventArgs e)

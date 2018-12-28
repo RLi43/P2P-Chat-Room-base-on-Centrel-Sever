@@ -20,11 +20,10 @@ namespace Chat_Room
 {
     public partial class MainWin : Form
     {
-        static Thread ThreadClient = null;
         static Socket SocketToSever = null;
-        static string severip = "166.111.140.14";
-        static int severport = 8000;
-        public string userID;           //用户ID
+        public string userID;                   //用户ID
+        List<ChatGroup> Groups = new List<ChatGroup>();
+        List<Chat> Chats = new List<Chat>();
         public MainWin()
         {
             InitializeComponent();
@@ -42,86 +41,21 @@ namespace Chat_Room
             //增加本人为好友
             string[] friend = new string[4];
             friend[0] = "我";                    //昵称
-            friend[1] = "在线";                  //状态
+            friend[1] = "嗯";                  //状态
             friend[2] = userID;                 //ID
             friend[3] = friendsQuery(userID);   //IP
             ListViewItem newfrd = new ListViewItem(friend);
             listView_Frds.Items.Add(newfrd);
 
         }
-        
-        //通信
-        static void connect2sever(){
-            try
-            {    
-                IPAddress ip = IPAddress.Parse(severip);
-                IPEndPoint ipe = new IPEndPoint(ip, severport);    
-                //定义一个套接字监听  
-                SocketToSever = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);    
-                try
-                {
-                    //客户端套接字连接到网络节点上，用的是Connect  
-                    SocketToSever.Connect(ipe);
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("连接失败！\r\n");
-                    Console.ReadLine();
-                }    
-                ThreadClient = new Thread(Recv);
-                ThreadClient.IsBackground = true;
-                ThreadClient.Start();    
-            }
-            catch (Exception ex) 
-            {
-                Console.WriteLine(ex.Message);
-                Console.ReadLine();
-            }
-        }
-        //接收服务端发来信息的方法    
-        public static void Recv()
-        {
-                int x = 0;
-            //持续监听服务端发来的消息 
-            while (true)
-            {
-                try
-                {
-                    //定义一个1M的内存缓冲区，用于临时性存储接收到的消息  
-                    byte[] arrRecvmsg = new byte[1024 * 1024];
- 
-                    //将客户端套接字接收到的数据存入内存缓冲区，并获取长度  
-                    int length = SocketToSever.Receive(arrRecvmsg);
- 
-                    //将套接字获取到的字符数组转换为人可以看懂的字符串  
-                    string strRevMsg = Encoding.UTF8.GetString(arrRecvmsg, 0, length);
-                    if (x == 1)
-                    {
-                        Console.WriteLine("\r\n服务器：" 
-                            + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff") 
-                            + "\r\n" + strRevMsg+"\r\n");                        
-                    }
-                    else
-                    {
-                        Console.WriteLine(strRevMsg + "\r\n");
-                        x = 1;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("远程服务器已经中断连接！" + ex.Message + "\r\n");
-                    break;
-                }
-            }
-        }
- 
-        //发送字符信息到服务端的方法  
-        public static void ClientSendMsg2Sever(string sendMsg)
+       
+        //发送字符信息到指定socket 
+        public static void SendMsg2(string sendMsg,Socket send2)
         {
             //将输入的内容字符串转换为机器可以识别的字节数组     
             byte[] arrClientSendMsg = Encoding.UTF8.GetBytes(sendMsg);
             //调用客户端套接字发送字节数组     
-            SocketToSever.Send(arrClientSendMsg);
+            send2.Send(arrClientSendMsg);
         }
         string receiveFromSever(int size = 1024)
         {
@@ -144,19 +78,20 @@ namespace Chat_Room
         }
         private void textBox_find_Leave(object sender, EventArgs e)
         {
-            if (textBox_find.Text == "")
+            if (textBox_find.Text == "" )
             {
                 find_text_empty = true;
                 textBox_find.ForeColor = Color.Gray;
                 textBox_find.Text = "学号/群号";
-            }
+            }else if(textBox_find.Text == "学号/群号") find_text_empty = true;
             else find_text_empty = false;
         }
 
         private void button_send_Click(object sender, EventArgs e)
         {
-            ClientSendMsg2Sever(richTextBox_Input.Text);
+            SendMsg2(richTextBox_Input.Text, SocketToSever);
         }
+
         //退出&下线
         private void MainWin_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -164,7 +99,7 @@ namespace Chat_Room
                 MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
             if (result == DialogResult.OK)
             {
-                ClientSendMsg2Sever("logout" + userID);
+                SendMsg2("logout" + userID, SocketToSever);
                 string strRevMsg = receiveFromSever();
                 if (strRevMsg == "loo")
                 {
@@ -183,10 +118,11 @@ namespace Chat_Room
                 e.Cancel = true;
             }
         }
-        //查询好友
+
+        //--查询好友--
         string friendsQuery(string IDnum)
         {
-            ClientSendMsg2Sever('q' + IDnum);
+            SendMsg2('q' + IDnum, SocketToSever);
             return receiveFromSever();    
         }
         /*
@@ -196,6 +132,18 @@ namespace Chat_Room
          * 2：   ID
          * 3：   ip
          */
+         bool isIP(string str)
+        {
+            try
+            {
+                IPAddress.Parse(str);
+                return true;
+            }
+            catch 
+            {
+                return false;
+            }
+        }
         private void button_find_Click(object sender, EventArgs e)
         {
             //TODO:群查询
@@ -207,13 +155,7 @@ namespace Chat_Room
                 return;
             }
             string result = friendsQuery(idname);
-            bool isIP = true;
-            try { IPAddress.Parse(result); }
-            catch (Exception ex)
-            {
-                isIP = false;
-            }
-            if (!isIP && "n" != result)
+            if ("n" != result&&!isIP(result) )
             {
                 MessageBox.Show("您拨打的电话是空号", "出错啦",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -221,7 +163,7 @@ namespace Chat_Room
             }
             else
             {
-                string state = "不在线";
+                string state = "";
                 if ("n" == result)
                 {
                     MessageBox.Show("您拨打的电话不在服务器，请稍后再试", "信息提示",
@@ -230,7 +172,7 @@ namespace Chat_Room
                 else
                 {
                     //好友在线
-                    state = "在线";
+                    state = "嗯";
                     MessageBox.Show("好友电话是：" + result, "信息提示",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -261,6 +203,212 @@ namespace Chat_Room
                 }
             }
         }
+        //--end of 查询好友 ---
+
+        //--发起聊天--
+        //单独
+        private void listView_Frds_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            var selected = listView_Frds.SelectedItems;
+            //Debug
+            foreach (ListViewItem item in selected)
+            {
+                Console.WriteLine(item.SubItems[2].Text);
+            }
+            //end of Debug
+
+            if (selected.Count != 1)
+            {
+                return;
+            }
+            string frds = userID; ;     //通知自己的ID
+            foreach (ListViewItem item in selected)
+            {
+                //通知所有人群组名单（ID）
+                frds += "," + item.SubItems[2].Text;
+            }
+            foreach (ListViewItem item in selected)
+            {
+                try
+                {
+                    string frdsIP = item.SubItems[3].Text;
+                    string frdsID = item.SubItems[2].Text;
+                    string frdsName = item.SubItems[0].Text;
+                    Socket p2ps = connect2other(item.SubItems[2].Text, frds);
+                    Chat newChat = new Chat(frdsIP, frdsID, frdsName,p2ps);
+                    Chats.Add(newChat);
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    MessageBox.Show("连接失败😔", "发生错误",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            /*
+            string friends = "";
+            foreach (ListViewItem item in this.listView_Frds.SelectedItems)
+            {
+                friends += item.SubItems[0].Text + ",";
+            }
+            friends = friends.Substring(0, friends.Length - 1);
+
+            Thread Thread_Chat = new Thread(() =>
+                        Application.Run(new ChatDialog(this.Text, friends, Chatters, contedNum)));
+            Thread_Chat.SetApartmentState(System.Threading.ApartmentState.STA);
+            Thread_Chat.Start();*/
+        }
+        //群聊       
+        private void button_initGrp_Click(object sender, EventArgs e)
+        {
+            var selected = listView_Frds.SelectedItems;
+            //Debug
+            foreach (ListViewItem item in selected)
+            {
+                Console.WriteLine(item.SubItems[2].Text);
+            }
+            //end of Debug
+            if (selected.Count < 1)
+            {
+                MessageBox.Show("你要找谁聊天呀嘿？在列表里点击哦", "信息提示",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            string[] frdsIP = new string[selected.Count];
+            string[] frdsID = new string[selected.Count];
+            string[] frdsName = new string[selected.Count];
+            int contedNum = 0;
+            string frds = userID; ;     //广播发起连接
+            Socket[] p2ps = new Socket[selected.Count];
+            foreach (ListViewItem item in selected)
+            {
+                //通知所有人群组名单（ID）
+                frds += "," + item.SubItems[2].Text;
+            }
+            foreach (ListViewItem item in selected)
+            {
+                try
+                {
+                    frdsIP[contedNum] = item.SubItems[3].Text;
+                    frdsID[contedNum] = item.SubItems[2].Text;
+                    frdsID[contedNum] = item.SubItems[0].Text;
+                    p2ps[contedNum] = connect2other(item.SubItems[2].Text, frds);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    MessageBox.Show("连接失败，是不是有人下线了？", "发生错误",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                contedNum++;
+            }
+            ChatGroup newGroup = new ChatGroup(frdsIP, frdsID, frdsName,p2ps);
+            Groups.Add(newGroup);
+        }
+
+        // 对某个ID对应的学号发起连接，并传递信息
+        public Socket connect2other(string ID, string Msg)
+        {
+            string IPstr = friendsQuery(ID);
+            if (!isIP(IPstr))
+            {
+                Console.WriteLine("ID: "+ID+"  IPstr: "+IPstr);
+                throw new Exception("IP地址异常");
+            }
+            IPEndPoint serverIp = new IPEndPoint(IPAddress.Parse(IPstr), 9876);
+            Socket tcpClient = new Socket(AddressFamily.InterNetwork,
+                SocketType.Stream, ProtocolType.Tcp);
+            tcpClient.Connect(serverIp);
+            SendMsg2(Msg, tcpClient);
+            return tcpClient;
+        }
+        
+        //--end of 查询好友--
+
+        //修改昵称
+        private void button_chgName_Click(object sender, EventArgs e)
+        {
+            var selected = listView_Frds.SelectedItems;
+            if (selected.Count != 1)
+            {
+                MessageBox.Show("小孩子就选一个哦", "请选择",
+                                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            text inp = new text("新的昵称:");
+            DialogResult dr = inp.ShowDialog();
+            if (dr == DialogResult.OK && inp.Value.Length > 0)
+            {
+                foreach (ListViewItem item in selected)
+                {
+                    item.SubItems[0].Text = inp.Value;
+                }
+            }
+            inp.Dispose();
+        }
+
+        private void button_delete_Click(object sender, EventArgs e)
+        {
+            var selected = listView_Frds.SelectedItems;
+            if (selected.Count < 1)return;
+            DialogResult result = MessageBox.Show("确定删除?", "真的嘛?",
+                                MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
+            if (result == DialogResult.OK)
+            {
+                foreach (ListViewItem item in selected)
+                {
+                    item.Remove();
+                }
+            }
+        }
+
+        //进度条
+        //https://www.w3cschool.cn/csharp/csharp-6z9g2pls.html
+
 
     }
+    class ChatGroup
+    {
+        public string groupID = "0";
+        public string[] frdsIP;
+        public string[] frdsID;
+        public string[] frdsName;
+        public Socket[] p2ps;
+        ChatGroup() { }
+        public ChatGroup(string[] _frdsIP, string[] _frdsID, string[] _frdsName,Socket[] _p2ps)
+        {
+            frdsID = _frdsID;
+            frdsIP = _frdsIP;
+            frdsName = _frdsName;
+            p2ps = _p2ps;
+            // 唯一标识
+            groupID = "";
+            List<string> sortedID = new List<string>(frdsID);
+            sortedID.Sort();
+            for (int i = 0; i < frdsID.Length; i++)
+            {
+                groupID = groupID + sortedID[i].ToString();
+            }
+        }
+    }
+    class Chat
+    {
+        public string groupID = "0";
+        public string frdsIP;
+        public string frdsID;
+        public string frdsName;
+        public Socket p2ps;
+        Chat() { }
+        public Chat(string _frdsIP, string _frdsID, string _frdsName, Socket _p2ps)
+        {
+            frdsID = _frdsID;
+            frdsIP = _frdsIP;
+            frdsName = _frdsName;
+            p2ps = _p2ps;
+            groupID = frdsID;
+        }
+    }
+
 }
