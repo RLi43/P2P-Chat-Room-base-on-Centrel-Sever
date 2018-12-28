@@ -51,13 +51,13 @@
             this.label_RoomName = new System.Windows.Forms.Label();
             this.richTextBox_output = new System.Windows.Forms.RichTextBox();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.richTextBox_Input = new System.Windows.Forms.RichTextBox();
             this.button3 = new System.Windows.Forms.Button();
             this.button_img = new System.Windows.Forms.Button();
             this.button_send = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.panel1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.Friends.SuspendLayout();
@@ -117,6 +117,9 @@
             // listView_Frds
             // 
             this.listView_Frds.AllowColumnReorder = true;
+            this.listView_Frds.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("listView_Frds.BackgroundImage")));
+            this.listView_Frds.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.listView_Frds.CheckBoxes = true;
             this.listView_Frds.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.昵称,
             this.在线,
@@ -136,22 +139,22 @@
             // 昵称
             // 
             this.昵称.Text = "昵称";
-            this.昵称.Width = 92;
+            this.昵称.Width = 100;
             // 
             // 在线
             // 
             this.在线.Text = "在线";
-            this.在线.Width = 97;
+            this.在线.Width = 50;
             // 
             // ID
             // 
             this.ID.Text = "ID";
-            this.ID.Width = 117;
+            this.ID.Width = 100;
             // 
             // IP
             // 
             this.IP.Text = "IP";
-            this.IP.Width = 133;
+            this.IP.Width = 100;
             // 
             // Group
             // 
@@ -166,6 +169,8 @@
             // 
             // listView1
             // 
+            this.listView1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("listView1.BackgroundImage")));
+            this.listView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.Names,
             this.Members});
@@ -176,14 +181,17 @@
             this.listView1.Size = new System.Drawing.Size(653, 938);
             this.listView1.TabIndex = 0;
             this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.View = System.Windows.Forms.View.Details;
             // 
             // Names
             // 
             this.Names.Text = "群聊名称";
+            this.Names.Width = 132;
             // 
             // Members
             // 
             this.Members.Text = "成员";
+            this.Members.Width = 513;
             // 
             // button_delete
             // 
@@ -191,7 +199,7 @@
             this.button_delete.FlatAppearance.BorderSize = 0;
             this.button_delete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_delete.Font = new System.Drawing.Font("方正清刻本悦宋简体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_delete.Location = new System.Drawing.Point(533, 1052);
+            this.button_delete.Location = new System.Drawing.Point(519, 1052);
             this.button_delete.Name = "button_delete";
             this.button_delete.Size = new System.Drawing.Size(153, 43);
             this.button_delete.TabIndex = 9;
@@ -219,7 +227,7 @@
             this.button_initGrp.FlatAppearance.BorderSize = 0;
             this.button_initGrp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_initGrp.Font = new System.Drawing.Font("方正清刻本悦宋简体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_initGrp.Location = new System.Drawing.Point(3, 1052);
+            this.button_initGrp.Location = new System.Drawing.Point(18, 1052);
             this.button_initGrp.Name = "button_initGrp";
             this.button_initGrp.Size = new System.Drawing.Size(153, 43);
             this.button_initGrp.TabIndex = 8;
@@ -256,11 +264,11 @@
             this.button_detail.FlatAppearance.BorderSize = 0;
             this.button_detail.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_detail.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_detail.Location = new System.Drawing.Point(924, 4);
+            this.button_detail.Location = new System.Drawing.Point(1000, 4);
             this.button_detail.Name = "button_detail";
-            this.button_detail.Size = new System.Drawing.Size(130, 48);
+            this.button_detail.Size = new System.Drawing.Size(54, 48);
             this.button_detail.TabIndex = 4;
-            this.button_detail.Text = "详细";
+            this.button_detail.Text = "...";
             this.button_detail.UseVisualStyleBackColor = false;
             // 
             // label_RoomName
@@ -290,6 +298,7 @@
             // panel3
             // 
             this.panel3.BackColor = System.Drawing.SystemColors.Window;
+            this.panel3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.panel3.Controls.Add(this.progressBar1);
             this.panel3.Controls.Add(this.button2);
             this.panel3.Controls.Add(this.button1);
@@ -301,6 +310,41 @@
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(1057, 218);
             this.panel3.TabIndex = 2;
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(6, 186);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(210, 23);
+            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.progressBar1.TabIndex = 6;
+            this.progressBar1.Visible = false;
+            // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.Color.DarkCyan;
+            this.button2.FlatAppearance.BorderSize = 0;
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button2.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button2.Location = new System.Drawing.Point(168, 4);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(48, 48);
+            this.button2.TabIndex = 5;
+            this.button2.Text = "💬";
+            this.button2.UseVisualStyleBackColor = false;
+            // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.Color.DarkCyan;
+            this.button1.FlatAppearance.BorderSize = 0;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button1.Location = new System.Drawing.Point(114, 4);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(48, 48);
+            this.button1.TabIndex = 4;
+            this.button1.Text = "🖐";
+            this.button1.UseVisualStyleBackColor = false;
             // 
             // richTextBox_Input
             // 
@@ -355,50 +399,18 @@
             this.button_send.UseVisualStyleBackColor = false;
             this.button_send.Click += new System.EventHandler(this.button_send_Click);
             // 
-            // button1
-            // 
-            this.button1.BackColor = System.Drawing.Color.DarkCyan;
-            this.button1.FlatAppearance.BorderSize = 0;
-            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button1.Location = new System.Drawing.Point(114, 4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(48, 48);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "🖐";
-            this.button1.UseVisualStyleBackColor = false;
-            // 
-            // button2
-            // 
-            this.button2.BackColor = System.Drawing.Color.DarkCyan;
-            this.button2.FlatAppearance.BorderSize = 0;
-            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button2.Location = new System.Drawing.Point(168, 4);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(48, 48);
-            this.button2.TabIndex = 5;
-            this.button2.Text = "💬";
-            this.button2.UseVisualStyleBackColor = false;
-            // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(6, 186);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(210, 23);
-            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
-            this.progressBar1.TabIndex = 6;
-            this.progressBar1.Visible = false;
-            // 
             // MainWin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(192F, 192F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = true;
+            this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(1774, 1129);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
+            this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainWin";
             this.Text = "网上聊天室";
@@ -440,11 +452,11 @@
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage Friends;
         private System.Windows.Forms.TabPage Group;
-        private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.ColumnHeader Names;
         private System.Windows.Forms.ColumnHeader Members;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ProgressBar progressBar1;
+        public System.Windows.Forms.ListView listView1;
     }
 }
