@@ -914,7 +914,8 @@ namespace Chat_Room
                 while (outputBoxWritting) { };
                 //等到其他线程解除了写字框的占用
                 outputBoxWritting = true;   //占用之
-                UpdateChatList rb_s = new UpdateChatList(DrawChatList);
+                                            //新建委托
+                RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
                 string msg = Message.MSG + userID;
                 if (theChat.isGroup) {
                     msg += '1';
@@ -930,7 +931,9 @@ namespace Chat_Room
                 }
                 chatData nda = new chatData(userID, true, inputMsg, DateTime.Now);
                 theChat.Datas.Add(nda);
-                this.Invoke(rb_s, new object[] { theChat.Datas });
+                List<chatData> drawC = new List<chatData>();
+                drawC.Add(nda);
+                this.Invoke(rb_s, new object[] { drawC });
                 outputBoxWritting = false;  //恢复不被占用
                 richTextBox_Input.Text = "";
             }
