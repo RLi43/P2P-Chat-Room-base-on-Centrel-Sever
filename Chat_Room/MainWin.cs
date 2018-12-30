@@ -221,6 +221,22 @@ namespace Chat_Room
                     listView1.Items.Add(newchat.setItem());
                 }
             }
+        }//轮询好友
+        //可能需要考虑占用的问题
+        void updateState()
+        {
+            foreach (ListViewItem item in listView1.Items)
+            {
+                string result = friendsQuery(item.SubItems[2].Text);
+                if (result == "n")
+                {
+                    item.SubItems[1].Text = "";
+                }
+                else
+                {
+                    item.SubItems[1].Text = "嗯";
+                }
+            }
         }
         //--end of 查询好友--
 
@@ -713,23 +729,7 @@ namespace Chat_Room
                 }, null);
             }
         }
-        //轮询好友
-        //可能需要考虑占用的问题
-        void updateState()
-        {
-            foreach (ListViewItem item in listView1.Items){
-                string result = friendsQuery(item.SubItems[2].Text);
-                if (result == "n")
-                {
-                    item.SubItems[1].Text = "";
-                }else
-                {
-                    item.SubItems[1].Text = "嗯";
-                }
-            }
-        }
         
-        //--end of 查询好友 ---
 
         // 对某个ID对应的学号发起连接，并传递信息
         public Socket connect2other(string ID, string Msg)
@@ -994,7 +994,7 @@ namespace Chat_Room
             public Chat(Friend _friend)
             {
                 friends = new List<Friend>();
-                friends.Add( _friend);
+                friends.Add(_friend);
                 ID = _friend.ID;
                 isGroup = false;
                 //serverID = "";
