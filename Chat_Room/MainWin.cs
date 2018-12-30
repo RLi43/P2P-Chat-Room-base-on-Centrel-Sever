@@ -620,6 +620,7 @@ namespace Chat_Room
                     {
                         length = link.EndReceive(asyncResult);
                         string Recv = Encoding.UTF8.GetString(data, 0, length);
+                        Console.WriteLine(Recv);
 
                         if (length == 0)
                         {
@@ -974,6 +975,7 @@ namespace Chat_Room
                 memNum = friends.Count;
                 listening = false;
                 unRead = 0;
+                Datas = new List<chatData>();
                 //ID 标识需要整理
                 List<string> sorted = new List<string>();
                 for (int i = 0; i < memNum; i++)
@@ -1001,6 +1003,7 @@ namespace Chat_Room
                 memNum = 1;
                 listening = false;
                 unRead = 0;
+                Datas = new List<chatData>();
                 if (_friend.online) state = CHATSTATE.ONLINE;
                 else state = CHATSTATE.OFFLINE;
             }
