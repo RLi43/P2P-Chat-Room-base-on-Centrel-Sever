@@ -568,7 +568,7 @@ namespace Chat_Room
                 }
 
             }
-            Socket[] links = null;
+            Socket[] links = new Socket[theChat.memNum];
             for (int i = 0; i < theChat.memNum; i++)
             {
                 links[i] = theChat.friends[i].link;
@@ -978,8 +978,8 @@ namespace Chat_Room
             }
             public Chat(Friend _friend)
             {
-                friends = new List<Friend>(1);
-                friends[0] = _friend;
+                friends = new List<Friend>();
+                friends.Add( _friend);
                 ID = _friend.ID;
                 isGroup = false;
                 //serverID = "";
