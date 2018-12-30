@@ -409,7 +409,7 @@ namespace Chat_Room
             listView1.Items.Clear();
             foreach (Chat c in Chats)
             {
-                listView1.Items.Add(c.item);
+                listView1.Items.Add(c.setItem());
             }
         }
         public void msgTrans(string Recv, Socket clientSocket)
@@ -449,11 +449,22 @@ namespace Chat_Room
                         //显示对话
                         Chat newchat = new Chat(newfrd);
                         Chats.Add(newchat);
-                        theChat = newchat;
                         newchat.setItem();
+                        theChat = newchat;
+
+                        richTextBox_output.Clear();
+                        foreach (Chat c in Chats)
+                        {
+                            if (c.state == Chat.CHATSTATE.ONCHAT)
+                            {
+                                c.state = Chat.CHATSTATE.LINK;
+                            }
+                        }
+                        theChat.state = Chat.CHATSTATE.ONCHAT;
 
                         UpdateChatList rb_s = new UpdateChatList(DrawChatList);
                         this.Invoke(rb_s, new object[] { Chats });
+                        
                     }
                     else if (rs == DialogResult.No)
                     {
@@ -620,7 +631,7 @@ namespace Chat_Room
                     {
                         length = link.EndReceive(asyncResult);
                         string Recv = Encoding.UTF8.GetString(data, 0, length);
-                        Console.WriteLine(Recv);
+                        Console.WriteLine(link.RemoteEndPoint.ToString()+" : "+ Recv);
 
                         if (length == 0)
                         {
