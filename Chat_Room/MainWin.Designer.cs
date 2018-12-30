@@ -154,7 +154,7 @@
             // IP
             // 
             this.IP.Text = "IP";
-            this.IP.Width = 100;
+            this.IP.Width = 120;
             // 
             // Group
             // 
@@ -401,6 +401,7 @@
             // 
             // MainWin
             // 
+            this.AcceptButton = this.button_find;
             this.AutoScaleDimensions = new System.Drawing.SizeF(192F, 192F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = true;

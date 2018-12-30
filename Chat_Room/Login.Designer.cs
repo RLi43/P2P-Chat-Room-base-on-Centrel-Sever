@@ -43,15 +43,15 @@
             // 
             this.panel1.Controls.Add(this.textBox_IDnum);
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Location = new System.Drawing.Point(109, 94);
+            this.panel1.Location = new System.Drawing.Point(109, 106);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(370, 80);
+            this.panel1.Size = new System.Drawing.Size(370, 60);
             this.panel1.TabIndex = 0;
             // 
             // textBox_IDnum
             // 
             this.textBox_IDnum.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox_IDnum.Location = new System.Drawing.Point(133, 24);
+            this.textBox_IDnum.Location = new System.Drawing.Point(135, 14);
             this.textBox_IDnum.Name = "textBox_IDnum";
             this.textBox_IDnum.Size = new System.Drawing.Size(216, 36);
             this.textBox_IDnum.TabIndex = 1;
@@ -61,7 +61,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("方正清刻本悦宋简体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label1.Location = new System.Drawing.Point(4, 34);
+            this.label1.Location = new System.Drawing.Point(3, 18);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(84, 26);
             this.label1.TabIndex = 0;

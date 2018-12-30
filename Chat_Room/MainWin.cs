@@ -203,6 +203,22 @@ namespace Chat_Room
                 }
             }
         }
+        //轮询好友
+        //可能需要考虑占用的问题
+        void updateState()
+        {
+            foreach (ListViewItem item in listView_Frds.Items){
+                string result = friendsQuery(item.SubItems[2].Text);
+                if (result == "n")
+                {
+                    item.SubItems[1].Text = "";
+                }else
+                {
+                    item.SubItems[1].Text = "嗯";
+                }
+            }
+        }
+        
         //--end of 查询好友 ---
 
         //--发起聊天--
@@ -324,8 +340,6 @@ namespace Chat_Room
             SendMsg2(Msg, tcpClient);
             return tcpClient;
         }
-        
-        //--end of 查询好友--
 
         //修改昵称
         private void button_chgName_Click(object sender, EventArgs e)
