@@ -723,7 +723,6 @@ namespace Chat_Room
         // 对某个ID对应的学号发起连接，并传递信息
         public Socket connect2other(string ID, string Msg)
         {
-
             string IPstr = friendsQuery(ID);
             if (!isIP(IPstr))
             {
