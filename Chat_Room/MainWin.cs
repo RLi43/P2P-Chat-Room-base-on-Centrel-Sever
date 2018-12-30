@@ -452,7 +452,7 @@ namespace Chat_Room
                         newchat.setItem();
                         theChat = newchat;
 
-                        richTextBox_output.Clear();
+                        //richTextBox_output.Clear();
                         foreach (Chat c in Chats)
                         {
                             if (c.state == Chat.CHATSTATE.ONCHAT)
@@ -894,8 +894,8 @@ namespace Chat_Room
             for(int i = 0; i < cd.Count; i++)
             {
                 if (cd[i].isself) ha = HorizontalAlignment.Right; else ha = HorizontalAlignment.Left;
-                ShowMsg_inRichTextBox(cd[i].get1stLine(), Color.Black, ha);
-                ShowMsg_inRichTextBox(cd[i].get2rdLine(), Color.Black, ha);
+                ShowMsg_inRichTextBox(cd[i].get1stLine()+"\n", Color.Black, ha);
+                ShowMsg_inRichTextBox(cd[i].get2rdLine()+"\n", Color.Black, ha);
             }
         }
         public void ShowMsg_inRichTextBox(string str, Color color, HorizontalAlignment direction)
