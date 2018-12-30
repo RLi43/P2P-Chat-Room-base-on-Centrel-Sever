@@ -913,7 +913,7 @@ namespace Chat_Room
                 while (outputBoxWritting) { };
                 //等到其他线程解除了写字框的占用
                 outputBoxWritting = true;   //占用之
-                RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
+                UpdateChatList rb_s = new UpdateChatList(DrawChatList);
                 string msg = Message.MSG + userID;
                 if (theChat.isGroup) {
                     msg += '1';
@@ -933,8 +933,9 @@ namespace Chat_Room
                 outputBoxWritting = false;  //恢复不被占用
                 richTextBox_Input.Text = "";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 MessageBox.Show("好友已关闭会话，不能发送信息", "出错啦。。。",
                                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
