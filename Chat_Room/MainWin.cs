@@ -584,7 +584,7 @@ namespace Chat_Room
                 }
 
             }
-            Socket[] links = null;
+            Socket[] links = new Socket[theChat.memNum];
             for (int i = 0; i < theChat.memNum; i++)
             {
                 links[i] = theChat.friends[i].link;

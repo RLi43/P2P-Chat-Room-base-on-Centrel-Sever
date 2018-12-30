@@ -158,7 +158,9 @@ SocketClient.Send(arrClientSendMsg);
 
 根据P2P通信协议定义套接字的回调函数，接收各种类型的信息并显示响应。
 
-有消息的聊天标亮提醒。
+主程序监听“大门”，将符合建立连接`CON`的Socket交给Chat处理；
+
+Chat收听相关的Sockets，根据信息的类型进行动作。
 
 #### 聊天
 
