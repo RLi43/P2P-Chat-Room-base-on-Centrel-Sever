@@ -736,9 +736,10 @@ namespace Chat_Room
         public Socket connect2other(string ID, string Msg)
         {
             string IPstr = friendsQuery(ID);
+            Console.WriteLine("Connect to ID: " + ID + "  IPstr: " + IPstr);
             if (!isIP(IPstr))
             {
-                Console.WriteLine("ID: " + ID + "  IPstr: " + IPstr);
+                Console.WriteLine("Connect to ID: " + ID + "  IPstr: " + IPstr);
                 throw new Exception("IP地址异常");
             }
             int destPort = int.Parse(ID.Substring(ID.Length - 5)) + 2000;
@@ -754,13 +755,7 @@ namespace Chat_Room
         private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             var selected = listView1.SelectedItems;
-            //Debug
-            foreach (ListViewItem item in selected)
-            {
-                Console.WriteLine(item.SubItems[0].Text + " " + item.SubItems[1].Text);
-            }
-            //end of Debug
-
+            
             if (selected.Count != 1)
             {
                 //或者直接触发“发起群聊”
@@ -774,7 +769,19 @@ namespace Chat_Room
             {
                 //TODO
                 //将该对话置为聊天框
-
+                if (theChat.state == Chat.CHATSTATE.LINK)
+                {
+                    richTextBox_output.Clear();
+                    foreach (Chat c in Chats)
+                    {
+                        if (c.state == Chat.CHATSTATE.ONCHAT)
+                        {
+                            c.state = Chat.CHATSTATE.LINK;
+                        }
+                    }
+                    theChat.state = Chat.CHATSTATE.ONCHAT;
+                    label_RoomName.Text = theChat.Name;
+                }
             }
             else
             {
@@ -1008,6 +1015,7 @@ namespace Chat_Room
                 listening = false;
                 unRead = 0;
                 Datas = new List<chatData>();
+                Name = _friend.Name;
                 if (_friend.online) state = CHATSTATE.ONLINE;
                 else state = CHATSTATE.OFFLINE;
             }
