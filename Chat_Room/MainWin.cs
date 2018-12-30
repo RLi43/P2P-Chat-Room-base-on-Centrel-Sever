@@ -919,6 +919,9 @@ namespace Chat_Room
                     msg += '1';
                     msg += theChat.ID;
                 } else msg += '0';
+                string len = inputMsg.Length.ToString();
+                while (len.Length < 4) len = "0" + len;
+                msg +=len +inputMsg;
                 foreach (Friend fd in theChat.friends)
                 {
                     if (fd.link == null) break;
