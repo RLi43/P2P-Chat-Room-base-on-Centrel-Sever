@@ -49,7 +49,7 @@ namespace Chat_Room
             localPort = int.Parse(userID.Substring(userID.Length - 5)) + 2000;
 
             StartListening();
-
+            outputBoxWritting = false;
             //---增加本人为好友---
             Friend newfrd = new Friend("", true, userID, "我", null);
             Frds.Add(newfrd);
@@ -387,7 +387,15 @@ namespace Chat_Room
             }
         }
         //根据接收到的信息操作
-
+        private delegate void UpdateChatList(List<Chat> cs);
+        void DrawChatList(List<Chat> cs)
+        {
+            listView1.Items.Clear();
+            foreach (Chat c in Chats)
+            {
+                listView1.Items.Add(c.item);
+            }
+        }
         public void msgTrans(string Recv, Socket clientSocket)
         {
 
@@ -417,7 +425,7 @@ namespace Chat_Room
                     DialogResult rs = MessageBox.Show(remoteID + " 向您发起会话"
                         , "会话请求", MessageBoxButtons.YesNoCancel
                          , MessageBoxIcon.Question);
-                    if (rs == DialogResult.OK)
+                    if (rs == DialogResult.Yes)
                     {
                         //增加好友并开启对话
                         Friend newfrd = new Friend("", true, remoteID, remoteID, clientSocket);
@@ -426,9 +434,12 @@ namespace Chat_Room
                         Chat newchat = new Chat(newfrd);
                         Chats.Add(newchat);
                         theChat = newchat;
-                        listView1.Items.Add(newchat.setItem());
+                        newchat.setItem();
+
+                        UpdateChatList rb_s = new UpdateChatList(DrawChatList);
+                        this.Invoke(rb_s, new object[] { Chats });
                     }
-                    else if (rs == DialogResult.Cancel)
+                    else if (rs == DialogResult.No)
                     {
                         //中断本次对话 不回应
                         return;
@@ -500,7 +511,6 @@ namespace Chat_Room
                         Chat newchat = new Chat(newFrds, Gname);
                         Chats.Add(newchat);
                         theChat = newchat;
-                        theChat.state = Chat.CHATSTATE.ONCHAT;
                         richTextBox_output.Clear();
                         foreach (Chat c in Chats)
                         {
@@ -509,6 +519,7 @@ namespace Chat_Room
                                 c.state = Chat.CHATSTATE.LINK;
                             }
                         }
+                        theChat.state = Chat.CHATSTATE.ONCHAT;
                     }
                     else
                     {//拒绝加入
@@ -754,6 +765,7 @@ namespace Chat_Room
                 //或者直接触发“发起群聊”
                 return;
             }
+            if (selected[0].SubItems[2].Text == userID) return;
             string destID = selected[0].SubItems[2].Text;
             int destInd = Chats.FindIndex(x => x.ID == destID);
             Chat theChat = Chats[destInd];
@@ -783,7 +795,6 @@ namespace Chat_Room
                 {
                     //TODO:被拒绝呢？
 
-                    theChat.state = Chat.CHATSTATE.ONCHAT;
                     theChat.friends[0].link = p2ps;
                     Socket[] links = new Socket[1];
                     links[0] = p2ps;
@@ -796,6 +807,7 @@ namespace Chat_Room
                             c.state = Chat.CHATSTATE.LINK;
                         }
                     }
+                    theChat.state = Chat.CHATSTATE.ONCHAT;
                     //TODO 新的线程
                     ChatAsynRecive(links, theChat);
                 }
