@@ -770,7 +770,8 @@ namespace Chat_Room
                 listViewUpdate();
             }
         }
-        
+        #endregion
+        #region 发起连接
 
         // 对某个ID对应的学号发起连接，并传递信息
         public Socket connect2other(string ID, string Msg)
@@ -991,7 +992,8 @@ namespace Chat_Room
                 return;
             }
         }
-
+        #endregion
+        #region 聊天
 
         //聊天界面
         bool outputBoxWritting = false;
@@ -1013,6 +1015,7 @@ namespace Chat_Room
             richTextBox_output.SelectionAlignment = direction;
             //向文本框的文本追加文本
             richTextBox_output.AppendText(str);
+            //滑到最下面
             richTextBox_output.SelectionStart = richTextBox_output.TextLength;
             richTextBox_output.ScrollToCaret();
         }
@@ -1086,7 +1089,8 @@ namespace Chat_Room
                     theChat = c;
             if (theChat == null)
             {
-                MessageBox.Show("先建立会话哦", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("先建立会话哦", "提示",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             string msg = Message.SHK + userID;
