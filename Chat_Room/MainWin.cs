@@ -727,6 +727,7 @@ namespace Chat_Room
 
                 }, null);
             }
+            Console.WriteLine(links.ToString());
             MessageBox.Show("和"+theChat.Name+" 连接中断", "信息提示",
                                         MessageBoxButtons.OK, MessageBoxIcon.Information);
             theChat.state = Chat.CHATSTATE.OFFLINE;
@@ -962,10 +963,6 @@ namespace Chat_Room
                 ShowMsg_inRichTextBox(cd[i].get1stLine()+"\n", Color.Black, ha);
                 ShowMsg_inRichTextBox(cd[i].get2rdLine()+"\n", Color.Black, ha);
             }
-        }
-        public void OutputClear(List<chatData> cd)
-        {
-            richTextBox_output.Clear();
         }
         public void ShowMsg_inRichTextBox(string str, Color color, HorizontalAlignment direction)
         {
