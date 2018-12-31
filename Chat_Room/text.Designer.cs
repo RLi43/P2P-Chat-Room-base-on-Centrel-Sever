@@ -49,7 +49,7 @@
             this.button1.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button1.ForeColor = System.Drawing.Color.Transparent;
             this.button1.Location = new System.Drawing.Point(239, 159);
-            this.button1.Name = "button1";
+            this.button1.Name = "buttonShake";
             this.button1.Size = new System.Drawing.Size(130, 58);
             this.button1.TabIndex = 1;
             this.button1.Text = "确定";
@@ -73,7 +73,7 @@
             this.button2.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button2.ForeColor = System.Drawing.Color.Transparent;
             this.button2.Location = new System.Drawing.Point(384, 159);
-            this.button2.Name = "button2";
+            this.button2.Name = "button_data";
             this.button2.Size = new System.Drawing.Size(130, 58);
             this.button2.TabIndex = 3;
             this.button2.Text = "取消";
