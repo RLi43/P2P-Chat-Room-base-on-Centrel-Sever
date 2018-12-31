@@ -602,11 +602,19 @@ namespace Chat_Room
             //thread.IsBackground = true;
             ////启动线程     
             //thread.Start(theChat);
-            ChatAsynRecive(theChat);
+
+            //ChatAsynRecive(theChat);
+            //创建一个通信线程      
+            Thread thread = new Thread(ChatAsynRecive);
+            //设置为后台线程，随着主线程退出而退出 
+            thread.IsBackground = true;
+            //启动线程     
+            thread.Start(theChat);
         }
         //对话监听
-        void ChatAsynRecive(Chat theChat)
+        void ChatAsynRecive(object obj)
         {
+            Chat theChat = obj as Chat;
             byte[] data = new byte[1024];
             Socket[] links = new Socket[theChat.memNum];
             for (int i = 0; i < theChat.memNum; i++)
@@ -615,7 +623,7 @@ namespace Chat_Room
             }
             try
             {
-                for (int i = 0; i < links.Length; ++i)
+                for (int i = 0; i < links.Length; i++)
                 {
                     Socket link = links[i];
                     if (link == null) break;
@@ -737,6 +745,7 @@ namespace Chat_Room
                             MessageBox.Show("和" + theChat.Name + " 连接中断", "信息提示",
                                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                             //TODO 关闭线程
+                            link.Close();
                         }
 
                     }, null);
@@ -750,6 +759,10 @@ namespace Chat_Room
                 MessageBox.Show("和" + theChat.Name + " 连接中断", "信息提示",
                                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 theChat.state = Chat.CHATSTATE.OFFLINE;
+                foreach (Socket link in links)
+                {
+                    link.Close();
+                }
 
             }
         }
@@ -849,7 +862,7 @@ namespace Chat_Room
             if (richTextBox_output.InvokeRequired)
             {
                 // 当一个控件的InvokeRequired属性值为真时，说明有一个创建它以外的线程想访问它
-                Action<int> actionDelegate = (x) => { richTextBox_output.Clear(); };
+                Action actionDelegate = () => { richTextBox_output.Clear(); };
                 this.richTextBox_output.Invoke(actionDelegate,1);
             }
             else
