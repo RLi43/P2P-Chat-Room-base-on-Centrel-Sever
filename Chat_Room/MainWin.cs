@@ -822,8 +822,8 @@ namespace Chat_Room
             if (richTextBox_output.InvokeRequired)
             {
                 // 当一个控件的InvokeRequired属性值为真时，说明有一个创建它以外的线程想访问它
-                Action<string> actionDelegate = (x) => { richTextBox_output.Clear(); };
-                this.label_RoomName.Invoke(actionDelegate);
+                Action<int> actionDelegate = (x) => { richTextBox_output.Clear(); };
+                this.label_RoomName.Invoke(actionDelegate,1);
             }
             else
             {
