@@ -109,6 +109,7 @@ namespace Chat_Room
                 textBox_find.Text = "查找学号";
             } else if (textBox_find.Text == "查找学号") find_text_empty = true;
             else find_text_empty = false;
+            AcceptButton = null;
         }
 
         //退出&下线
@@ -259,30 +260,23 @@ namespace Chat_Room
             DialogResult dr = inp.ShowDialog();
             if (dr == DialogResult.OK && inp.Value.Length > 0)
             {
-                foreach (ListViewItem item in selected)
+                ListViewItem item = selected[0];
+                //更新界面
+                item.SubItems[0].Text = inp.Value;
+                string id = item.SubItems[2].Text;
+                //更新对话列表
+                Chat theChat = null;
+                for (int i = 0; i < Chats.Count; i++)
                 {
-                    //更新界面
-                    item.SubItems[0].Text = inp.Value;
-                    string id = item.SubItems[2].Text;
-                    //更新对话列表
-                    for (int i = 0; i < Chats.Count; i++)
+                    if (Chats[i].ID == id)
                     {
-                        if (Chats[i].ID == id)
-                        {
-                            Chats[i].Name = inp.Value;
-                        }
+                        theChat = Chats[i];
+                        break;
                     }
-                    //更新通讯录
-                    if (item.Tag.ToString() == "S")
-                    {
-                        for (int i = 0; i < Frds.Count; i++)
-                        {
-                            if (Frds[i].ID == id)
-                            {
-                                Frds[i].Name = inp.Value;
-                            }
-                        }
-                    }
+                }
+                theChat.Name = inp.Value;
+                if (!theChat.isGroup) {
+                    theChat.friends[0].Name = inp.Value;
                 }
             }
             inp.Dispose();
@@ -1190,7 +1184,7 @@ namespace Chat_Room
             Chat theChat = null;
             foreach (Chat c in Chats)
                 if (c.state == Chat.CHATSTATE.ONCHAT)
-                    theChat = c;
+                { theChat = c; break; }
             if (theChat == null)
             {
                 MessageBox.Show("先建立会话哦", "提示",
@@ -1614,5 +1608,37 @@ namespace Chat_Room
             public const string FLE = "发文件";
         }
 
+        private void richTextBox_Input_Enter(object sender, EventArgs e)
+        {
+            AcceptButton = button_send;
+        }
+
+        private void richTextBox_Input_Leave(object sender, EventArgs e)
+        {
+            AcceptButton = null;
+        }
+
+        private void textBox_find_Enter(object sender, EventArgs e)
+        {
+            AcceptButton = button_find;
+        }
+
+        private void button_detail_Click(object sender, EventArgs e)
+        {
+
+            Chat theChat = null;
+            foreach (Chat c in Chats)
+                if (c.state == Chat.CHATSTATE.ONCHAT)
+                { theChat = c; break;
+                }
+            if (theChat == null)
+                return;
+            string detail = "群聊名称:"+theChat.Name+"\r\n";
+            for(int i = 0; i < theChat.memNum; i++)
+            {
+                detail += theChat.friends[i].Name + "(" + theChat.friends[i].ID+ ")"+"\r\n";
+            }
+                MessageBox.Show(detail);
+        }
     }
 }
