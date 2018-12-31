@@ -603,93 +603,95 @@ namespace Chat_Room
         void ChatAsynRecive(Socket[] links,Chat theChat)
         {
             byte[] data = new byte[1024];
-            for(int i = 0; i < links.Length; i++)
+            try
             {
-                Socket link = links[i];
-                if (link == null) break;
-                link.BeginReceive(data, 0, data.Length, SocketFlags.None,
-                asyncResult =>
+                for (int i = 0; i < links.Length; i++)
                 {
-                    int length = 0;
-                    try
+                    Socket link = links[i];
+                    if (link == null) break;
+                    link.BeginReceive(data, 0, data.Length, SocketFlags.None,
+                    asyncResult =>
                     {
-                        length = link.EndReceive(asyncResult);
-                        string Recv = Encoding.UTF8.GetString(data, 0, length);
-                        Console.WriteLine(link.RemoteEndPoint.ToString()+" : "+ Recv);
-
-                        if (length == 0)
+                        int length = 0;
+                        try
                         {
+                            length = link.EndReceive(asyncResult);
+                            string Recv = Encoding.UTF8.GetString(data, 0, length);
+                            Console.WriteLine(link.RemoteEndPoint.ToString() + " : " + Recv);
+
+                            if (length == 0)
+                            {
                             //删掉
                             MessageBox.Show("好友退出了会话", "信息提示",
-                                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            theChat.state = Chat.CHATSTATE.OFFLINE;
+                                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                theChat.state = Chat.CHATSTATE.OFFLINE;
                             //TODO:关闭线程
                             //
                             return;
-                        }
+                            }
 
-                        string type = Recv.Substring(0, 3);
-                        switch (type)
-                        {
-                            case Message.CON:
-                                {
+                            string type = Recv.Substring(0, 3);
+                            switch (type)
+                            {
+                                case Message.CON:
+                                    {
                                     //TODO : send ACK
                                     break;
-                                }
-                            case Message.FIN:
-                                {
+                                    }
+                                case Message.FIN:
+                                    {
                                     //可以什么都不做来着
                                     break;
-                                }
-                            case Message.ACK:
-                                {
+                                    }
+                                case Message.ACK:
+                                    {
                                     //TODO 
                                     break;
-                                }
-                            case Message.MSG:
-                                {
+                                    }
+                                case Message.MSG:
+                                    {
                                     //务必先取得连接之后才能对话
                                     if (theChat.state > Chat.CHATSTATE.ONLINE)
-                                    {
-                                        int startInd = 18;
-                                        if (theChat.isGroup)
                                         {
-                                            startInd = 20 + 10 * theChat.memNum;
-                                        }
+                                            int startInd = 18;
+                                            if (theChat.isGroup)
+                                            {
+                                                startInd = 20 + 10 * theChat.memNum;
+                                            }
                                         //int l = int.Parse(Recv.Substring(startInd-4, 4));
                                         string Msgs = Recv.Substring(startInd);
                                         //增加聊天记录
                                         chatData newDa = new chatData(theChat.friends[i].Name,
-                                            false, Msgs, DateTime.Now);
-                                        theChat.Datas.Add(newDa);
-                                        theChat.unRead++;                                        
-                                        
+                                                false, Msgs, DateTime.Now);
+                                            theChat.Datas.Add(newDa);
+                                            theChat.unRead++;
+
                                         //当前对话直接将消息绘制,即增加最后一条
-                                        if (theChat.state ==Chat.CHATSTATE.ONCHAT)
-                                        {
-                                            while (outputBoxWritting) { };
-                                            outputBoxWritting = true;   //占用之
+                                        if (theChat.state == Chat.CHATSTATE.ONCHAT)
+                                            {
+                                                while (outputBoxWritting) { };
+                                                outputBoxWritting = true;   //占用之
                                             RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
-                                            List<chatData> drawC = new List<chatData>(1);
-                                            drawC[0] = newDa;
-                                            this.Invoke(rb_s, new object[] { drawC });
-                                            outputBoxWritting = false;  //恢复不被占用
+                                                List<chatData> drawC = new List<chatData>(1);
+                                                drawC[0] = newDa;
+                                                this.Invoke(rb_s, new object[] { drawC });
+                                                outputBoxWritting = false;  //恢复不被占用
                                             theChat.unRead = 0;
-                                        }
-                                        else
-                                        {
-                                            theChat.state = Chat.CHATSTATE.NEWS;
+                                            }
+                                            else
+                                            {
+                                                theChat.state = Chat.CHATSTATE.NEWS;
                                             //重绘 更新会话列表
                                             listViewUpdate();
+                                            }
                                         }
-                                    }
-                                    else
-                                    {//未确认方发送的连接
+                                        else
+                                        {//未确认方发送的连接
                                         return;
+                                        }
+                                        break;
                                     }
-                                    break;
-                                }
-                        }
+                            }
 
                         /*
                         //文件操作
@@ -716,21 +718,28 @@ namespace Chat_Room
                             this.Invoke(rb_s, new object[] { show_string, Color.Black, HorizontalAlignment.Left });
                             richTextBox_show_writing = false;  //恢复不被占用
                         }*/
-                        ChatAsynRecive(links,theChat);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        theChat.state = Chat.CHATSTATE.OFFLINE;
-                        //TODO 关闭线程
-                    }
+                            ChatAsynRecive(links, theChat);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                            theChat.state = Chat.CHATSTATE.OFFLINE;
+                            MessageBox.Show("和" + theChat.Name + " 连接中断", "信息提示",
+                                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            //TODO 关闭线程
+                        }
 
-                }, null);
-            }
-            Console.WriteLine(links.ToString());
-            MessageBox.Show("和"+theChat.Name+" 连接中断", "信息提示",
+                    }, null);
+                }
+            }catch(Exception ex)
+            {
+            Console.WriteLine(links[0].Available);
+                Console.WriteLine(ex);
+                MessageBox.Show("和"+theChat.Name+" 连接中断", "信息提示",
                                         MessageBoxButtons.OK, MessageBoxIcon.Information);
             theChat.state = Chat.CHATSTATE.OFFLINE;
+
+            }
         }
         
 
