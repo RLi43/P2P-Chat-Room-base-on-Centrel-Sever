@@ -732,43 +732,11 @@ namespace Chat_Room
                                         string FlieInf = Recv.Substring(startInd);
                                         string filename = FlieInf.Split('-').First();       //文件名
                                         long fileLength = Convert.ToInt64(FlieInf.Split('-').Last());//文件长度
+                                        //委托主线程接收
 
-                                        string fileNameSuffix = filename.Substring(filename.LastIndexOf('.')); //文件后缀
-                                        SaveFileDialog sfDialog = new SaveFileDialog()
-                                        {
-                                            Filter = "(*" + fileNameSuffix + ")|*" + fileNameSuffix + "", //文件类型
-                                            FileName = filename
-                                        };
-                                        if (sfDialog.ShowDialog(this) == DialogResult.OK)
-                                        {
-                                            Console.WriteLine("正在保存来自" + curFrd.Name + "的文件");
-                                            chatData newda = new chatData(curFrd.Name, false, "发送了 " + filename, DateTime.Now);
-                                            theChat.Datas.Add(newda);
-                                            addChatList(newda);
-
-                                            byte[] buffer = new byte[1000000];
-                                            string savePath = sfDialog.FileName; //获取文件的全路径
-                                            //保存文件
-                                            int received = 0;
-                                            long receivedTotalFilelength = 0;
-                                            using (FileStream fs = new FileStream(savePath, FileMode.Create, FileAccess.Write))
-                                            {
-                                                while (receivedTotalFilelength < fileLength) //收到的文件字节数组
-                                                {
-                                                    received = link.Receive(buffer); //每次收到的文件字节数组 可以直接写入文件
-                                                    fs.Write(buffer, 0, received);
-                                                    fs.Flush();
-                                                    receivedTotalFilelength += received;
-                                                }
-                                                fs.Close();
-                                            }
-
-                                            string fName = savePath.Substring(savePath.LastIndexOf("\\") + 1); //文件名 不带路径
-                                            string fPath = savePath.Substring(0, savePath.LastIndexOf("\\")); //文件路径 不带文件名
-                                            newda = new chatData(user.Name, true, "接收了 " + fName + "\r\n保存路径为:" + fPath, DateTime.Now);
-                                            theChat.Datas.Add(newda);
-                                            addChatList(newda);
-                                        }
+                                        FileSave r_s = new FileSave(fileRecieve);
+                                        this.Invoke(r_s, new object[] {filename, fileLength,curFrd,theChat });
+                                        
                                     }
                                     else return;
                                     break;
@@ -796,6 +764,47 @@ namespace Chat_Room
                 listViewUpdate();
             }
         }
+        void fileRecieve(string filename,long fileLength,Friend curFrd,Chat theChat)
+        {
+            string fileNameSuffix = filename.Substring(filename.LastIndexOf('.')); //文件后缀
+            SaveFileDialog sfDialog = new SaveFileDialog()
+            {
+                Filter = "(*" + fileNameSuffix + ")|*" + fileNameSuffix + "", //文件类型
+                FileName = filename
+            };
+            if (sfDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                Console.WriteLine("正在保存来自" + curFrd.Name + "的文件");
+                chatData newda = new chatData(curFrd.Name, false, "发送了 " + filename, DateTime.Now);
+                theChat.Datas.Add(newda);
+                addChatList(newda);
+
+                byte[] buffer = new byte[1000000];
+                string savePath = sfDialog.FileName; //获取文件的全路径
+                                                     //保存文件
+                int received = 0;
+                long receivedTotalFilelength = 0;
+                using (FileStream fs = new FileStream(savePath, FileMode.Create, FileAccess.Write))
+                {
+                    while (receivedTotalFilelength < fileLength) //收到的文件字节数组
+                    {
+                        received = curFrd.link.Receive(buffer); //每次收到的文件字节数组 可以直接写入文件
+                        fs.Write(buffer, 0, received);
+                        fs.Flush();
+                        receivedTotalFilelength += received;
+                    }
+                    fs.Close();
+                }
+
+                string fName = savePath.Substring(savePath.LastIndexOf("\\") + 1); //文件名 不带路径
+                string fPath = savePath.Substring(0, savePath.LastIndexOf("\\")); //文件路径 不带文件名
+                newda = new chatData(user.Name, true, "接收了 " + fName + "\r\n保存路径为:" + fPath, DateTime.Now);
+                theChat.Datas.Add(newda);
+                addChatList(newda);
+            }
+        }
+        private delegate void FileSave(string filename, long fileLength, Friend curFrd, Chat theChat);
+
         #endregion
         #region 发起连接
 
