@@ -1118,26 +1118,26 @@ namespace Chat_Room
 
         private void timer1_Tick_1(object sender, EventArgs e)
         {
-            int count1 = count % 8;
-            if (count1 < 2)
+            int count1 = count % 12;
+            if (count1 < 3)
             {
                 Point new_loc = new Point(this.Location.X - 1, this.Location.Y - 1);
                 this.Location = new_loc;
                 count++;
             }
-            else if (count1 < 4)
+            else if (count1 < 6)
             {
                 Point new_loc = new Point(this.Location.X + 1, this.Location.Y + 1);
                 this.Location = new_loc;
                 count++;
             }
-            else if (count1 < 6)
+            else if (count1 < 9)
             {
                 Point new_loc = new Point(this.Location.X + 1, this.Location.Y - 1);
                 this.Location = new_loc;
                 count++;
             }
-            else if (count1 < 8)
+            else if (count1 < 12)
             {
                 Point new_loc = new Point(this.Location.X - 1, this.Location.Y + 1);
                 this.Location = new_loc;
