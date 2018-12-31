@@ -1247,9 +1247,9 @@ namespace Chat_Room
                             theChat.friends[i].link.SendFile(filePath,
                             null, null, TransmitFileOptions.UseDefaultWorkerThread);
                         }
-            chatData newda = new chatData(theChat.friends[i].Name, true, "接收了 " + fileName, DateTime.Now);
-            theChat.Datas.Add(newda);
-            addChatList(newda);
+                        chatData newda = new chatData(theChat.friends[i].Name, true, "接收了 " + fileName, DateTime.Now);
+                        theChat.Datas.Add(newda);
+                        addChatList(newda);
                     }
                     catch
                     {
