@@ -1080,7 +1080,7 @@ namespace Chat_Room
 
         //窗口抖动
         //发送
-        private void button_shake_Click(object sender, EventArgs e)
+        private void buttonShake_Click(object sender, EventArgs e)
         {
 
             Chat theChat = null;
