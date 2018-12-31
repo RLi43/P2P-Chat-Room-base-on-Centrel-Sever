@@ -68,7 +68,8 @@ namespace Chat_Room
             byte[] arrClientSendMsg = Encoding.UTF8.GetBytes(sendMsg);
             //调用客户端套接字发送字节数组     
             send2.Send(arrClientSendMsg);
-            Console.WriteLine("Send to " + send2.RemoteEndPoint.ToString() + ": " + sendMsg);
+            if(sendMsg.Length<50)
+                Console.WriteLine("Send to " + send2.RemoteEndPoint.ToString() + ": " + sendMsg);
         }
         string receiveFromSever(int size = 1024)
         {
@@ -384,7 +385,8 @@ namespace Chat_Room
                 {
                     int length = clientSocket.EndReceive(asyncResult);
                     string Recv = Encoding.UTF8.GetString(data, 0, length);
-                    Console.WriteLine(clientSocket.RemoteEndPoint.ToString() + ": " + Recv);
+                    if(Recv.Length<50)
+                        Console.WriteLine(clientSocket.RemoteEndPoint.ToString() + ": " + Recv);
                     if (length == 0)
                     {
                         Console.WriteLine(clientSocket.RemoteEndPoint.ToString() + " 已断开连接");
@@ -629,7 +631,8 @@ namespace Chat_Room
                         {
                             length = link.EndReceive(asyncResult);
                             Recv = Encoding.UTF8.GetString(data, 0, length);
-                            Console.WriteLine(link.RemoteEndPoint.ToString() + " : " + Recv);
+                            if(Recv.Length<50)
+                                Console.WriteLine(link.RemoteEndPoint.ToString() + " : " + Recv);
                         }
                         catch (Exception ex)
                         {
