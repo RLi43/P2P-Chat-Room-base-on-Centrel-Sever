@@ -68,7 +68,8 @@ namespace Chat_Room
             byte[] arrClientSendMsg = Encoding.UTF8.GetBytes(sendMsg);
             //调用客户端套接字发送字节数组     
             send2.Send(arrClientSendMsg);
-            Console.WriteLine("Send to " + send2.RemoteEndPoint.ToString() + ": " + sendMsg);
+            if(sendMsg.Length<50)
+                Console.WriteLine("Send to " + send2.RemoteEndPoint.ToString() + ": " + sendMsg);
         }
         string receiveFromSever(int size = 1024)
         {
@@ -1210,6 +1211,7 @@ namespace Chat_Room
                 return;
             }
             label1.Text = "发送 "+fileName;      //将文件名显示在文本框上 
+            label1.Visible = true;
 
             //发送文件之前 将文件名字和长度发送过去
             long fileLength = new FileInfo(filePath).Length;
@@ -1245,6 +1247,9 @@ namespace Chat_Room
                             theChat.friends[i].link.SendFile(filePath,
                             null, null, TransmitFileOptions.UseDefaultWorkerThread);
                         }
+            chatData newda = new chatData(theChat.friends[i].Name, true, "接收了 " + fileName, DateTime.Now);
+            theChat.Datas.Add(newda);
+            addChatList(newda);
                     }
                     catch
                     {
@@ -1252,6 +1257,7 @@ namespace Chat_Room
                     }
                 }
             }
+            label1.Visible = false;
             MessageBox.Show("文件 "+ filePath + "传输成功", "信息提示");            
         }
 
