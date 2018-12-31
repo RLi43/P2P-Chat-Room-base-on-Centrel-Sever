@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
 //https://blog.csdn.net/luming666/article/details/79125453
 //166.111.140.14:8000
 //2016011000_net2018    lol
@@ -695,13 +696,7 @@ namespace Chat_Room
                                         //当前对话直接将消息绘制,即增加最后一条
                                         if (theChat.state == Chat.CHATSTATE.ONCHAT)
                                         {
-                                            while (outputBoxWritting) { };
-                                            outputBoxWritting = true;   //占用之
-                                            RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
-                                            List<chatData> drawC = new List<chatData>();
-                                            drawC.Add(newDa);
-                                            this.Invoke(rb_s, new object[] { drawC });
-                                            outputBoxWritting = false;  //恢复不被占用
+                                            addChatList(newDa);
                                             theChat.unRead = 0;
                                         }
                                         else
@@ -723,36 +718,66 @@ namespace Chat_Room
                                     this.Invoke(shake, new object[] { });
                                     break;
                                 }
-                        }
+                            //https://blog.csdn.net/fsdad/article/details/73991751
+                            case Message.FLE:
+                                {
+                                    if (theChat.state > Chat.CHATSTATE.ONLINE)
+                                    {
+                                        int startInd = 14;
+                                        if (theChat.isGroup)
+                                        {
+                                            startInd = 16 + 10 * theChat.memNum;
+                                        }
+                                        string FlieInf = Recv.Substring(startInd);
+                                        string filename = FlieInf.Split('-').First();       //文件名
+                                        long fileLength = Convert.ToInt64(FlieInf.Split('-').Last());//文件长度
 
-                        /*
-                        //文件操作
-                        if (Recv == "<__cmd__transfer__file__>")
-                        {
-                            allDone.Reset();
-                            receive_save r_s = new receive_save(ReceiveFileConnect);
-                            this.Invoke(r_s, new object[] { link });
-                            allDone.WaitOne();
+                                        string fileNameSuffix = filename.Substring(filename.LastIndexOf('.')); //文件后缀
+                                        SaveFileDialog sfDialog = new SaveFileDialog()
+                                        {
+                                            Filter = "(*" + fileNameSuffix + ")|*" + fileNameSuffix + "", //文件类型
+                                            FileName = filename
+                                        };
+                                        if (sfDialog.ShowDialog(this) == DialogResult.OK)
+                                        {
+                                            Console.WriteLine("正在保存来自" + curFrd.Name + "的文件");
+                                            chatData newda = new chatData(curFrd.Name, false, "发送了 " + filename, DateTime.Now);
+                                            theChat.Datas.Add(newda);
+                                            addChatList(newda);
+
+                                            byte[] buffer = new byte[1000000];
+                                            string savePath = sfDialog.FileName; //获取文件的全路径
+                                            //保存文件
+                                            int received = 0;
+                                            long receivedTotalFilelength = 0;
+                                            using (FileStream fs = new FileStream(savePath, FileMode.Create, FileAccess.Write))
+                                            {
+                                                while (receivedTotalFilelength < fileLength) //收到的文件字节数组
+                                                {
+                                                    received = link.Receive(buffer); //每次收到的文件字节数组 可以直接写入文件
+                                                    fs.Write(buffer, 0, received);
+                                                    fs.Flush();
+                                                    receivedTotalFilelength += received;
+                                                }
+                                                fs.Close();
+                                            }
+
+                                            string fName = savePath.Substring(savePath.LastIndexOf("\\") + 1); //文件名 不带路径
+                                            string fPath = savePath.Substring(0, savePath.LastIndexOf("\\")); //文件路径 不带文件名
+                                            newda = new chatData(userID, true, "接收了 " + fName + "\r\n保存路径为:" + fPath, DateTime.Now);
+                                            theChat.Datas.Add(newda);
+                                            addChatList(newda);
+                                        }
+                                    }
+                                    else return;
+                                    break;
+                                }
+                            default:
+                                {
+                                    break;
+                                }
                         }
-                        else if (Recv == "<__cmd__shake__>")
-                        {
-                            Shake shake = new Shake(Window_Shake);
-                            this.Invoke(shake, new object[] { });
-                        }
-                        else
-                        {
-                            //如果当前写字框没有被占用
-                            while (richTextBox_show_writing) { };
-                            //等到其他线程解除了写字框的占用
-                            richTextBox_show_writing = true;   //占用之
-                            RichBox_Show rb_s = new RichBox_Show(ShowMsg_inRichTextBox);
-                            string show_string = Recv;
-                            this.Invoke(rb_s, new object[] { show_string, Color.Black, HorizontalAlignment.Left });
-                            richTextBox_show_writing = false;  //恢复不被占用
-                        }*/
                         ChatAsynRecive(theChat);
-
-
                     }, null);
 
                 }
@@ -997,6 +1022,16 @@ namespace Chat_Room
 
         //聊天界面
         bool outputBoxWritting = false;
+        void addChatList(chatData cd)
+        {
+            while (outputBoxWritting) { };
+            outputBoxWritting = true;   //占用之
+            RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
+            List<chatData> drawC = new List<chatData>();
+            drawC.Add(cd);
+            this.Invoke(rb_s, new object[] { drawC });
+            outputBoxWritting = false;  //恢复不被占用
+        }
         private delegate void RichBox_Show(List<chatData> cd);
         public void DrawChatOutput(List<chatData> cd)
         {
@@ -1082,7 +1117,6 @@ namespace Chat_Room
         //发送
         private void buttonShake_Click(object sender, EventArgs e)
         {
-
             Chat theChat = null;
             foreach (Chat c in Chats)
                 if (c.state == Chat.CHATSTATE.ONCHAT)
@@ -1146,6 +1180,77 @@ namespace Chat_Room
             if (count == 40)
                 timer1.Stop();
         }
+        //文件
+        private void button_file_Click(object sender, EventArgs e)
+        {
+            Chat theChat = null;
+            foreach (Chat c in Chats)
+                if (c.state == Chat.CHATSTATE.ONCHAT)
+                    theChat = c;
+            if (theChat == null)
+            {
+                MessageBox.Show("先建立会话哦", "提示",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            string filePath = null;   //文件的全路径
+            string fileName = null;   //文件名称(不包含路径) 
+            OpenFileDialog ofDialog = new OpenFileDialog();
+            if (ofDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                fileName = ofDialog.SafeFileName; //获取选取文件的文件名
+                filePath = ofDialog.FileName;     //获取包含文件名的全路径
+            }else
+            {
+                MessageBox.Show(@"请选择需要发送的文件!");
+                return;
+            }
+            if (string.IsNullOrEmpty(filePath))
+            {
+                MessageBox.Show(@"请选择需要发送的文件!");
+                return;
+            }
+            label1.Text = "发送 "+fileName;      //将文件名显示在文本框上 
+
+            //发送文件之前 将文件名字和长度发送过去
+            long fileLength = new FileInfo(filePath).Length;
+            string msg = Message.FLE + userID;
+            if (theChat.isGroup)
+            {
+                msg += '1';
+                string le = theChat.memNum.ToString();
+                while (le.Length < 2) le = "0" + le;
+                msg += le + theChat.ID;
+            }
+            else msg += '0';
+            msg += fileName + "-" +fileLength;
+            for(int i = 0; i < theChat.memNum; i++)
+            {
+                if (theChat.friends[i].link != null)
+                {
+                    SendMsg2(msg, theChat.friends[i].link);
+                    byte[] buffer = new byte[1000000];
+
+                    using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                    {
+                        int readLength = 0;
+                        long sentFileLength = 0;
+                        while ((readLength = fs.Read(buffer, 0, buffer.Length)) > 0 && sentFileLength < fileLength)
+                        {
+                            sentFileLength += readLength;
+                            theChat.friends[i].link.Send(buffer,
+                                0, readLength, SocketFlags.None);
+                        }
+                        fs.Close();
+                        theChat.friends[i].link.SendFile(filePath,
+                        null, null, TransmitFileOptions.UseDefaultWorkerThread);
+                    }
+                }
+            }
+            MessageBox.Show("文件 "+ filePath + "传输成功", "信息提示");            
+        }
+
         //--end of 聊天
 
         //编码与发送
@@ -1169,6 +1274,7 @@ namespace Chat_Room
             public int memNum;
             public bool listening;
             public CHATSTATE state;
+            public bool FileTransing;
             Chat()
             { }
             public Chat(List<Friend> _friends, string name)//, string _sever
@@ -1182,6 +1288,7 @@ namespace Chat_Room
                 listening = false;
                 unRead = 0;
                 Datas = new List<chatData>();
+                FileTransing = false;
                 //ID 标识需要整理
                 List<string> sorted = new List<string>();
                 for (int i = 0; i < memNum; i++)
@@ -1211,6 +1318,7 @@ namespace Chat_Room
                 unRead = 0;
                 Datas = new List<chatData>();
                 Name = _friend.Name;
+                FileTransing = false;
                 if (_friend.online) state = CHATSTATE.ONLINE;
                 else state = CHATSTATE.OFFLINE;
             }
@@ -1493,7 +1601,8 @@ namespace Chat_Room
             public const string ACK = "好的哥";
             public const string MSG = "嘀嘀嘀";
             public const string SHK = "来摇摆";
+            public const string FLE = "发文件";
         }
-        
+
     }
 }
