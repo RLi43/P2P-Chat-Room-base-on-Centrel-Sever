@@ -66,6 +66,7 @@ namespace Chat_Room
             byte[] arrClientSendMsg = Encoding.UTF8.GetBytes(sendMsg);
             //调用客户端套接字发送字节数组     
             send2.Send(arrClientSendMsg);
+            Console.WriteLine("Send to " + send2.RemoteEndPoint.ToString() + ": " + sendMsg);
         }
         string receiveFromSever(int size = 1024)
         {
@@ -616,7 +617,7 @@ namespace Chat_Room
             }
             try
             {
-                for (int i = 0; i < links.Length; i++)
+                for (int i = 0; i < links.Length; ++i)
                 {
                     Socket link = links[i];
                     if (link == null) break;
