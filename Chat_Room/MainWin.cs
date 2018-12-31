@@ -19,6 +19,7 @@ namespace Chat_Room
     public partial class MainWin : Form
     {
         static Socket SocketToSever = null;
+        Friend user;
         public string userID;                   //用户ID
         IPAddress userIP;
         List<Chat> Chats = new List<Chat>();
@@ -52,10 +53,10 @@ namespace Chat_Room
             StartListening();
             outputBoxWritting = false;
             //---增加本人为好友---
-            Friend newfrd = new Friend("", true, userID, "我", null);
-            Frds.Add(newfrd);
+            user = new Friend("", true, userID, "我", null);
+            Frds.Add(user);
             //显示对话
-            Chat newchat = new Chat(newfrd);
+            Chat newchat = new Chat(user);
             Chats.Add(newchat);
             listViewUpdate();
         }
@@ -764,7 +765,7 @@ namespace Chat_Room
 
                                             string fName = savePath.Substring(savePath.LastIndexOf("\\") + 1); //文件名 不带路径
                                             string fPath = savePath.Substring(0, savePath.LastIndexOf("\\")); //文件路径 不带文件名
-                                            newda = new chatData(userID, true, "接收了 " + fName + "\r\n保存路径为:" + fPath, DateTime.Now);
+                                            newda = new chatData(user.Name, true, "接收了 " + fName + "\r\n保存路径为:" + fPath, DateTime.Now);
                                             theChat.Datas.Add(newda);
                                             addChatList(newda);
                                         }
@@ -837,12 +838,6 @@ namespace Chat_Room
             {
                 //发起连接请求                
                 string conMsg = Message.CON + userID + "0";
-                //if (theChat.isGroup)
-                //{
-                //    string len = theChat.memNum.ToString();
-                //    while (len.Length < 2) len = "0" + len;
-                //    conMsg = Message.CON + userID + "1"+len+theChat.ID+theChat.Name;
-                //}
                 Socket p2ps = null;
                 try
                 {
@@ -1103,7 +1098,7 @@ namespace Chat_Room
             outputBoxWritting = true;   //占用之
                                         //新建委托
             RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
-            chatData nda = new chatData(userID, true, inputMsg, DateTime.Now);
+            chatData nda = new chatData(user.Name, true, inputMsg, DateTime.Now);
             theChat.Datas.Add(nda);
             List<chatData> drawC = new List<chatData>();
             drawC.Add(nda);
@@ -1231,20 +1226,26 @@ namespace Chat_Room
                 {
                     SendMsg2(msg, theChat.friends[i].link);
                     byte[] buffer = new byte[1000000];
-
-                    using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                    try
                     {
-                        int readLength = 0;
-                        long sentFileLength = 0;
-                        while ((readLength = fs.Read(buffer, 0, buffer.Length)) > 0 && sentFileLength < fileLength)
+                        using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                         {
-                            sentFileLength += readLength;
-                            theChat.friends[i].link.Send(buffer,
-                                0, readLength, SocketFlags.None);
+                            int readLength = 0;
+                            long sentFileLength = 0;
+                            while ((readLength = fs.Read(buffer, 0, buffer.Length)) > 0 && sentFileLength < fileLength)
+                            {
+                                sentFileLength += readLength;
+                                theChat.friends[i].link.Send(buffer,
+                                    0, readLength, SocketFlags.None);
+                            }
+                            fs.Close();
+                            theChat.friends[i].link.SendFile(filePath,
+                            null, null, TransmitFileOptions.UseDefaultWorkerThread);
                         }
-                        fs.Close();
-                        theChat.friends[i].link.SendFile(filePath,
-                        null, null, TransmitFileOptions.UseDefaultWorkerThread);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("发送失败： To" + theChat.friends[i].Name);
                     }
                 }
             }
