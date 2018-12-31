@@ -270,6 +270,7 @@
             this.buttonShake.TabIndex = 4;
             this.buttonShake.Text = "🖐";
             this.buttonShake.UseVisualStyleBackColor = false;
+            this.buttonShake.Click += new System.EventHandler(this.buttonShake_Click);
             // 
             // label_RoomName
             // 
