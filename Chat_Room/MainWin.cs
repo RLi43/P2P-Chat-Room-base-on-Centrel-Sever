@@ -824,7 +824,7 @@ namespace Chat_Room
             while (outputBoxWritting) { };
             outputBoxWritting = true;
             RichBox_Show rb_s = new RichBox_Show(OutputClear);
-            this.Invoke(rb_s, new object[] { });
+            this.Invoke(rb_s, new object[] { null});
             outputBoxWritting = false;  //恢复不被占用
 
             foreach (Chat c in Chats)   //清除正在聊天
