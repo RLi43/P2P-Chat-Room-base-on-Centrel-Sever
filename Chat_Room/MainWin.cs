@@ -645,106 +645,113 @@ namespace Chat_Room
                             link.Close();
                         }
                         if (length == 0)
-                            {
-                                //删掉
-                                MessageBox.Show("好友退出了会话", "信息提示",
-                                                MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                theChat.state = Chat.CHATSTATE.OFFLINE;
-                                //TODO:关闭线程
-                                //
-                                return;
-                            }
+                        {
+                            //删掉
+                            MessageBox.Show("好友退出了会话", "信息提示",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            theChat.state = Chat.CHATSTATE.OFFLINE;
+                            listViewUpdate();
+                            //TODO:关闭线程
+                            //
+                            return;
+                        }
 
-                            string type = Recv.Substring(0, 3);
-                            switch (type)
-                            {
-                                case Message.CON:
+                        string type = Recv.Substring(0, 3);
+                        switch (type)
+                        {
+                            case Message.CON:
+                                {
+                                    //TODO : send ACK
+                                    break;
+                                }
+                            case Message.FIN:
+                                {
+                                    //可以什么都不做来着
+                                    break;
+                                }
+                            case Message.ACK:
+                                {
+                                    //TODO 
+                                    break;
+                                }
+                            case Message.MSG:
+                                {
+                                    //务必先取得连接之后才能对话
+                                    if (theChat.state > Chat.CHATSTATE.ONLINE)
                                     {
-                                        //TODO : send ACK
-                                        break;
-                                    }
-                                case Message.FIN:
-                                    {
-                                        //可以什么都不做来着
-                                        break;
-                                    }
-                                case Message.ACK:
-                                    {
-                                        //TODO 
-                                        break;
-                                    }
-                                case Message.MSG:
-                                    {
-                                        //务必先取得连接之后才能对话
-                                        if (theChat.state > Chat.CHATSTATE.ONLINE)
+                                        int startInd = 18;
+                                        if (theChat.isGroup)
                                         {
-                                            int startInd = 18;
-                                            if (theChat.isGroup)
-                                            {
-                                                startInd = 20 + 10 * theChat.memNum;
-                                            }
-                                            //int l = int.Parse(Recv.Substring(startInd-4, 4));
-                                            string Msgs = Recv.Substring(startInd);
-                                            //增加聊天记录
-                                            chatData newDa = new chatData(curFrd.Name,
-                                                    false, Msgs, DateTime.Now);
-                                            theChat.Datas.Add(newDa);
-                                            theChat.unRead++;
+                                            startInd = 20 + 10 * theChat.memNum;
+                                        }
+                                        //int l = int.Parse(Recv.Substring(startInd-4, 4));
+                                        string Msgs = Recv.Substring(startInd);
+                                        //增加聊天记录
+                                        chatData newDa = new chatData(curFrd.Name,
+                                                false, Msgs, DateTime.Now);
+                                        theChat.Datas.Add(newDa);
+                                        theChat.unRead++;
 
-                                            //当前对话直接将消息绘制,即增加最后一条
-                                            if (theChat.state == Chat.CHATSTATE.ONCHAT)
-                                            {
-                                                while (outputBoxWritting) { };
-                                                outputBoxWritting = true;   //占用之
-                                                RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
-                                                List<chatData> drawC = new List<chatData>();
-                                                drawC.Add(newDa);
-                                                this.Invoke(rb_s, new object[] { drawC });
-                                                outputBoxWritting = false;  //恢复不被占用
-                                                theChat.unRead = 0;
-                                            }
-                                            else
-                                            {
-                                                theChat.state = Chat.CHATSTATE.NEWS;
-                                                //重绘 更新会话列表
-                                                listViewUpdate();
-                                            }
+                                        //当前对话直接将消息绘制,即增加最后一条
+                                        if (theChat.state == Chat.CHATSTATE.ONCHAT)
+                                        {
+                                            while (outputBoxWritting) { };
+                                            outputBoxWritting = true;   //占用之
+                                            RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
+                                            List<chatData> drawC = new List<chatData>();
+                                            drawC.Add(newDa);
+                                            this.Invoke(rb_s, new object[] { drawC });
+                                            outputBoxWritting = false;  //恢复不被占用
+                                            theChat.unRead = 0;
                                         }
                                         else
-                                        {//未确认方发送的连接
-                                            return;
+                                        {
+                                            theChat.state = Chat.CHATSTATE.NEWS;
+                                            //重绘 更新会话列表
+                                            listViewUpdate();
                                         }
-                                        break;
                                     }
-                            }
+                                    else
+                                    {//未确认方发送的连接
+                                        return;
+                                    }
+                                    break;
+                                }
+                            case Message.SHK:
+                                {
+                                    Shake shake = new Shake(Window_Shake);
+                                    this.Invoke(shake, new object[] { });
+                                    break;
+                                }
+                        }
 
-                            /*
-                            //文件操作
-                            if (Recv == "<__cmd__transfer__file__>")
-                            {
-                                allDone.Reset();
-                                receive_save r_s = new receive_save(ReceiveFileConnect);
-                                this.Invoke(r_s, new object[] { link });
-                                allDone.WaitOne();
-                            }
-                            else if (Recv == "<__cmd__shake__>")
-                            {
-                                Shake shake = new Shake(Window_Shake);
-                                this.Invoke(shake, new object[] { });
-                            }
-                            else
-                            {
-                                //如果当前写字框没有被占用
-                                while (richTextBox_show_writing) { };
-                                //等到其他线程解除了写字框的占用
-                                richTextBox_show_writing = true;   //占用之
-                                RichBox_Show rb_s = new RichBox_Show(ShowMsg_inRichTextBox);
-                                string show_string = Recv;
-                                this.Invoke(rb_s, new object[] { show_string, Color.Black, HorizontalAlignment.Left });
-                                richTextBox_show_writing = false;  //恢复不被占用
-                            }*/
-                            ChatAsynRecive(theChat);
-                        
+                        /*
+                        //文件操作
+                        if (Recv == "<__cmd__transfer__file__>")
+                        {
+                            allDone.Reset();
+                            receive_save r_s = new receive_save(ReceiveFileConnect);
+                            this.Invoke(r_s, new object[] { link });
+                            allDone.WaitOne();
+                        }
+                        else if (Recv == "<__cmd__shake__>")
+                        {
+                            Shake shake = new Shake(Window_Shake);
+                            this.Invoke(shake, new object[] { });
+                        }
+                        else
+                        {
+                            //如果当前写字框没有被占用
+                            while (richTextBox_show_writing) { };
+                            //等到其他线程解除了写字框的占用
+                            richTextBox_show_writing = true;   //占用之
+                            RichBox_Show rb_s = new RichBox_Show(ShowMsg_inRichTextBox);
+                            string show_string = Recv;
+                            this.Invoke(rb_s, new object[] { show_string, Color.Black, HorizontalAlignment.Left });
+                            richTextBox_show_writing = false;  //恢复不被占用
+                        }*/
+                        ChatAsynRecive(theChat);
+
 
                     }, null);
 
@@ -756,10 +763,11 @@ namespace Chat_Room
                 MessageBox.Show("和" + theChat.Name + " 连接中断", "信息提示",
                                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 theChat.state = Chat.CHATSTATE.OFFLINE;
-                for(int i = 0; i < theChat.memNum; i++)
+                for (int i = 0; i < theChat.memNum; i++)
                 {
                     theChat.friends[i].link.Close();
                 }
+                listViewUpdate();
             }
         }
         
@@ -1027,7 +1035,9 @@ namespace Chat_Room
             if (theChat.isGroup)
             {
                 msg += '1';
-                msg += theChat.ID;
+                string le = theChat.memNum.ToString();
+                while (le.Length < 2) le = "0" + le;
+                msg += le+theChat.ID;
             }
             else msg += '0';
             string len = inputMsg.Length.ToString();
@@ -1060,6 +1070,75 @@ namespace Chat_Room
             this.Invoke(rb_s, new object[] { drawC });
             outputBoxWritting = false;  //恢复不被占用
             richTextBox_Input.Text = "";
+        }
+
+
+        //窗口抖动
+        //发送
+        private void button_shake_Click(object sender, EventArgs e)
+        {
+
+            Chat theChat = null;
+            foreach (Chat c in Chats)
+                if (c.state == Chat.CHATSTATE.ONCHAT)
+                    theChat = c;
+            if (theChat == null)
+            {
+                MessageBox.Show("先建立会话哦", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            string msg = Message.SHK + userID;
+            if (theChat.isGroup)
+            {
+                msg += '1';
+                string le = theChat.memNum.ToString();
+                while (le.Length < 2) le = "0" + le;
+                msg += le + theChat.ID;
+            }
+            else msg += '0';
+
+            for (int i = 0; i < theChat.memNum; i++)
+            {
+                SendMsg2(msg, theChat.friends[i].link);
+            }
+        }
+        private delegate void Shake();
+        private void Window_Shake()
+        {
+            count = 0;
+            timer1.Start();
+        }
+        int count = 0;
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            int count1 = count % 8;
+            if (count1 < 2)
+            {
+                Point new_loc = new Point(this.Location.X - 1, this.Location.Y - 1);
+                this.Location = new_loc;
+                count++;
+            }
+            else if (count1 < 4)
+            {
+                Point new_loc = new Point(this.Location.X + 1, this.Location.Y + 1);
+                this.Location = new_loc;
+                count++;
+            }
+            else if (count1 < 6)
+            {
+                Point new_loc = new Point(this.Location.X + 1, this.Location.Y - 1);
+                this.Location = new_loc;
+                count++;
+            }
+            else if (count1 < 8)
+            {
+                Point new_loc = new Point(this.Location.X - 1, this.Location.Y + 1);
+                this.Location = new_loc;
+                count++;
+            }
+            if (count == 40)
+                timer1.Stop();
         }
         //--end of 聊天
 
@@ -1407,6 +1486,7 @@ namespace Chat_Room
             public const string FIN = "晚晚晚";
             public const string ACK = "好的哥";
             public const string MSG = "嘀嘀嘀";
+            public const string SHK = "来摇摆";
         }
 
         private void richTextBox_output_TextChanged(object sender, EventArgs e)
