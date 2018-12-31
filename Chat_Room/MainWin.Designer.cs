@@ -72,14 +72,13 @@
             // 
             // listView1
             // 
+            this.listView1.AllowColumnReorder = true;
             this.listView1.CheckBoxes = true;
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
             this.columnHeader2});
             this.listView1.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.listView1.ForeColor = System.Drawing.Color.DarkGreen;
-            this.listView1.LabelEdit = true;
-            this.listView1.LabelWrap = false;
             this.listView1.Location = new System.Drawing.Point(12, 56);
             this.listView1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.listView1.Name = "listView1";
