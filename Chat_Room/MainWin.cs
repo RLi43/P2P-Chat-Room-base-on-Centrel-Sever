@@ -385,7 +385,8 @@ namespace Chat_Room
                 {
                     int length = clientSocket.EndReceive(asyncResult);
                     string Recv = Encoding.UTF8.GetString(data, 0, length);
-                    Console.WriteLine(clientSocket.RemoteEndPoint.ToString() + ": " + Recv);
+                    if(Recv.Length<50)
+                        Console.WriteLine(clientSocket.RemoteEndPoint.ToString() + ": " + Recv);
                     if (length == 0)
                     {
                         Console.WriteLine(clientSocket.RemoteEndPoint.ToString() + " 已断开连接");
@@ -630,7 +631,8 @@ namespace Chat_Room
                         {
                             length = link.EndReceive(asyncResult);
                             Recv = Encoding.UTF8.GetString(data, 0, length);
-                            Console.WriteLine(link.RemoteEndPoint.ToString() + " : " + Recv);
+                            if(Recv.Length<50)
+                                Console.WriteLine(link.RemoteEndPoint.ToString() + " : " + Recv);
                         }
                         catch (Exception ex)
                         {
