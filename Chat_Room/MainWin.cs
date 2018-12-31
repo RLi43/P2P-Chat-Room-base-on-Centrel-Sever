@@ -1409,5 +1409,10 @@ namespace Chat_Room
             public const string MSG = "嘀嘀嘀";
         }
 
+        private void richTextBox_output_TextChanged(object sender, EventArgs e)
+        {
+            richTextBox_output.SelectionStart = richTextBox_output.TextLength;
+            richTextBox_output.ScrollToCaret();
+        }
     }
 }
