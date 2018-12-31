@@ -856,7 +856,7 @@ namespace Chat_Room
         void switchChat2(Chat theChat)
         {
             int count = 0;
-            foreach (Chat c in Chats)   //清除正在聊天
+            foreach (Chat c in Chats)  
                 if (c.state == Chat.CHATSTATE.ONCHAT) count++;
             if (count == 1&&theChat.state==Chat.CHATSTATE.ONCHAT) return;
 
@@ -1112,7 +1112,7 @@ namespace Chat_Room
         }
         int count = 0;
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void timer1_Tick_1(object sender, EventArgs e)
         {
             int count1 = count % 8;
             if (count1 < 2)
@@ -1490,6 +1490,6 @@ namespace Chat_Room
             public const string MSG = "嘀嘀嘀";
             public const string SHK = "来摇摆";
         }
-
+        
     }
 }
