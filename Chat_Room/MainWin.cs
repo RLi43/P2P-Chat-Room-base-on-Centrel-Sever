@@ -616,28 +616,35 @@ namespace Chat_Room
         {
             Chat theChat = obj as Chat;
             byte[] data = new byte[1024];
-            Socket[] links = new Socket[theChat.memNum];
-            for (int i = 0; i < theChat.memNum; i++)
-            {
-                links[i] = theChat.friends[i].link;
-            }
+            int cnt = 0;
             try
             {
-                for (int i = 0; i < links.Length; i++)
+                for (cnt = 0; cnt < theChat.friends.Count; cnt++)
                 {
-                    Socket link = links[i];
+                    Friend curFrd = theChat.friends[cnt];
+                    Socket link = curFrd.link;
                     if (link == null) break;
                     link.BeginReceive(data, 0, data.Length, SocketFlags.None,
                     asyncResult =>
                     {
                         int length = 0;
+                        string Recv = "";
                         try
                         {
                             length = link.EndReceive(asyncResult);
-                            string Recv = Encoding.UTF8.GetString(data, 0, length);
+                            Recv = Encoding.UTF8.GetString(data, 0, length);
                             Console.WriteLine(link.RemoteEndPoint.ToString() + " : " + Recv);
-
-                            if (length == 0)
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                            theChat.state = Chat.CHATSTATE.OFFLINE;
+                            MessageBox.Show("和" + theChat.Name + " 连接中断", "信息提示",
+                                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            //TODO 关闭线程
+                            link.Close();
+                        }
+                        if (length == 0)
                             {
                                 //删掉
                                 MessageBox.Show("好友退出了会话", "信息提示",
@@ -679,7 +686,7 @@ namespace Chat_Room
                                             //int l = int.Parse(Recv.Substring(startInd-4, 4));
                                             string Msgs = Recv.Substring(startInd);
                                             //增加聊天记录
-                                            chatData newDa = new chatData(theChat.friends[i].Name,
+                                            chatData newDa = new chatData(curFrd.Name,
                                                     false, Msgs, DateTime.Now);
                                             theChat.Datas.Add(newDa);
                                             theChat.unRead++;
@@ -690,8 +697,8 @@ namespace Chat_Room
                                                 while (outputBoxWritting) { };
                                                 outputBoxWritting = true;   //占用之
                                                 RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
-                                                List<chatData> drawC = new List<chatData>(1);
-                                                drawC[0] = newDa;
+                                                List<chatData> drawC = new List<chatData>();
+                                                drawC.Add(newDa);
                                                 this.Invoke(rb_s, new object[] { drawC });
                                                 outputBoxWritting = false;  //恢复不被占用
                                                 theChat.unRead = 0;
@@ -737,16 +744,7 @@ namespace Chat_Room
                                 richTextBox_show_writing = false;  //恢复不被占用
                             }*/
                             ChatAsynRecive(theChat);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            theChat.state = Chat.CHATSTATE.OFFLINE;
-                            MessageBox.Show("和" + theChat.Name + " 连接中断", "信息提示",
-                                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            //TODO 关闭线程
-                            link.Close();
-                        }
+                        
 
                     }, null);
 
@@ -754,16 +752,14 @@ namespace Chat_Room
             }
             catch (Exception ex)
             {
-                Console.WriteLine(links[0].Available);
                 Console.WriteLine(ex);
                 MessageBox.Show("和" + theChat.Name + " 连接中断", "信息提示",
                                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 theChat.state = Chat.CHATSTATE.OFFLINE;
-                foreach (Socket link in links)
+                for(int i = 0; i < theChat.memNum; i++)
                 {
-                    link.Close();
+                    theChat.friends[i].link.Close();
                 }
-
             }
         }
         
@@ -863,7 +859,7 @@ namespace Chat_Room
             {
                 // 当一个控件的InvokeRequired属性值为真时，说明有一个创建它以外的线程想访问它
                 Action actionDelegate = () => { richTextBox_output.Clear(); };
-                this.richTextBox_output.Invoke(actionDelegate,1);
+                this.richTextBox_output.Invoke(actionDelegate);
             }
             else
             {
