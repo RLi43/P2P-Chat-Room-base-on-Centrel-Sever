@@ -66,7 +66,7 @@
             this.panel1.Location = new System.Drawing.Point(22, 12);
             this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(500, 900);
+            this.panel1.Size = new System.Drawing.Size(250, 450);
             this.panel1.TabIndex = 0;
             // 
             // listView1
@@ -82,7 +82,7 @@
             this.listView1.Location = new System.Drawing.Point(12, 56);
             this.listView1.Margin = new System.Windows.Forms.Padding(6);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(472, 768);
+            this.listView1.Size = new System.Drawing.Size(238, 386);
             this.listView1.TabIndex = 12;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -107,7 +107,7 @@
             this.button_chgName.Location = new System.Drawing.Point(176, 840);
             this.button_chgName.Margin = new System.Windows.Forms.Padding(4);
             this.button_chgName.Name = "button_chgName";
-            this.button_chgName.Size = new System.Drawing.Size(152, 44);
+            this.button_chgName.Size = new System.Drawing.Size(76, 22);
             this.button_chgName.TabIndex = 11;
             this.button_chgName.Text = "修改昵称";
             this.button_chgName.UseVisualStyleBackColor = false;
@@ -122,7 +122,7 @@
             this.button_delete.Location = new System.Drawing.Point(336, 840);
             this.button_delete.Margin = new System.Windows.Forms.Padding(4);
             this.button_delete.Name = "button_delete";
-            this.button_delete.Size = new System.Drawing.Size(152, 44);
+            this.button_delete.Size = new System.Drawing.Size(76, 22);
             this.button_delete.TabIndex = 9;
             this.button_delete.Text = "删除好友";
             this.button_delete.UseVisualStyleBackColor = false;
@@ -137,7 +137,7 @@
             this.button_find.Location = new System.Drawing.Point(392, 8);
             this.button_find.Margin = new System.Windows.Forms.Padding(4);
             this.button_find.Name = "button_find";
-            this.button_find.Size = new System.Drawing.Size(92, 44);
+            this.button_find.Size = new System.Drawing.Size(46, 22);
             this.button_find.TabIndex = 4;
             this.button_find.Text = "查找";
             this.button_find.UseVisualStyleBackColor = false;
@@ -152,7 +152,7 @@
             this.button_initGrp.Location = new System.Drawing.Point(12, 840);
             this.button_initGrp.Margin = new System.Windows.Forms.Padding(4);
             this.button_initGrp.Name = "button_initGrp";
-            this.button_initGrp.Size = new System.Drawing.Size(152, 44);
+            this.button_initGrp.Size = new System.Drawing.Size(76, 22);
             this.button_initGrp.TabIndex = 8;
             this.button_initGrp.Text = "发起群聊";
             this.button_initGrp.UseVisualStyleBackColor = false;
@@ -166,7 +166,7 @@
             this.textBox_find.Location = new System.Drawing.Point(12, 12);
             this.textBox_find.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_find.Name = "textBox_find";
-            this.textBox_find.Size = new System.Drawing.Size(372, 36);
+            this.textBox_find.Size = new System.Drawing.Size(186, 18);
             this.textBox_find.TabIndex = 0;
             this.textBox_find.Text = "查找学号";
             this.textBox_find.Click += new System.EventHandler(this.textBox_find_Click);
@@ -187,7 +187,7 @@
             this.panel2.Location = new System.Drawing.Point(546, 12);
             this.panel2.Margin = new System.Windows.Forms.Padding(4);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(900, 900);
+            this.panel2.Size = new System.Drawing.Size(450, 450);
             this.panel2.TabIndex = 1;
             // 
             // button_send
@@ -199,7 +199,7 @@
             this.button_send.Location = new System.Drawing.Point(766, 848);
             this.button_send.Margin = new System.Windows.Forms.Padding(4);
             this.button_send.Name = "button_send";
-            this.button_send.Size = new System.Drawing.Size(130, 48);
+            this.button_send.Size = new System.Drawing.Size(65, 24);
             this.button_send.TabIndex = 1;
             this.button_send.Text = "发送";
             this.button_send.UseVisualStyleBackColor = false;
@@ -210,7 +210,7 @@
             this.progressBar1.Location = new System.Drawing.Point(4, 852);
             this.progressBar1.Margin = new System.Windows.Forms.Padding(4);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(240, 44);
+            this.progressBar1.Size = new System.Drawing.Size(120, 22);
             this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.progressBar1.TabIndex = 6;
             this.progressBar1.Visible = false;
@@ -225,7 +225,7 @@
             this.richTextBox_Input.Margin = new System.Windows.Forms.Padding(4);
             this.richTextBox_Input.Name = "richTextBox_Input";
             this.richTextBox_Input.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.richTextBox_Input.Size = new System.Drawing.Size(882, 142);
+            this.richTextBox_Input.Size = new System.Drawing.Size(441, 71);
             this.richTextBox_Input.TabIndex = 0;
             this.richTextBox_Input.Text = "";
             // 
@@ -252,7 +252,7 @@
             this.button_detail.Location = new System.Drawing.Point(842, 8);
             this.button_detail.Margin = new System.Windows.Forms.Padding(4);
             this.button_detail.Name = "button_detail";
-            this.button_detail.Size = new System.Drawing.Size(54, 48);
+            this.button_detail.Size = new System.Drawing.Size(27, 24);
             this.button_detail.TabIndex = 4;
             this.button_detail.Text = "...";
             this.button_detail.UseVisualStyleBackColor = false;
@@ -276,10 +276,10 @@
             // 
             this.label_RoomName.AutoSize = true;
             this.label_RoomName.Font = new System.Drawing.Font("微软雅黑", 13.875F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label_RoomName.Location = new System.Drawing.Point(4, 4);
-            this.label_RoomName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label_RoomName.Location = new System.Drawing.Point(2, 2);
+            this.label_RoomName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label_RoomName.Name = "label_RoomName";
-            this.label_RoomName.Size = new System.Drawing.Size(131, 48);
+            this.label_RoomName.Size = new System.Drawing.Size(69, 25);
             this.label_RoomName.TabIndex = 5;
             this.label_RoomName.Text = "聊天室";
             // 
@@ -294,9 +294,10 @@
             this.richTextBox_output.Name = "richTextBox_output";
             this.richTextBox_output.ReadOnly = true;
             this.richTextBox_output.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.richTextBox_output.Size = new System.Drawing.Size(878, 574);
+            this.richTextBox_output.Size = new System.Drawing.Size(441, 289);
             this.richTextBox_output.TabIndex = 4;
             this.richTextBox_output.Text = "";
+            this.richTextBox_output.TextChanged += new System.EventHandler(this.richTextBox_output_TextChanged);
             // 
             // button_file
             // 
@@ -332,12 +333,12 @@
             // 
             // MainWin
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(1468, 922);
+            this.ClientSize = new System.Drawing.Size(677, 366);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.DoubleBuffered = true;

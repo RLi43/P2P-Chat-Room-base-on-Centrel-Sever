@@ -1489,6 +1489,10 @@ namespace Chat_Room
             public const string SHK = "来摇摆";
         }
 
-    
+        private void richTextBox_output_TextChanged(object sender, EventArgs e)
+        {
+            richTextBox_output.SelectionStart = richTextBox_output.TextLength;
+            richTextBox_output.ScrollToCaret();
+        }
     }
 }
