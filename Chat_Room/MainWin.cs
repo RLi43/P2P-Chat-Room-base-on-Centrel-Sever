@@ -680,11 +680,7 @@ namespace Chat_Room
                                         {
                                             theChat.state = Chat.CHATSTATE.NEWS;
                                             //重绘 更新会话列表
-                                            while (listviewUsing) { };
-                                            listviewUsing = true;   //占用之
-                                            UpdateChatList cl = new UpdateChatList(DrawChatList);
-                                            this.Invoke(cl, new object[] { Chats });
-                                            listviewUsing = false;  //恢复不被占用
+                                            listViewUpdate();
                                         }
                                     }
                                     else
@@ -731,6 +727,7 @@ namespace Chat_Room
 
                 }, null);
             }
+            Console.WriteLine(links.ToString());
             MessageBox.Show("和"+theChat.Name+" 连接中断", "信息提示",
                                         MessageBoxButtons.OK, MessageBoxIcon.Information);
             theChat.state = Chat.CHATSTATE.OFFLINE;
@@ -823,23 +820,45 @@ namespace Chat_Room
             //清除聊天框
             while (outputBoxWritting) { };
             outputBoxWritting = true;
-            RichBox_Show rb_s = new RichBox_Show(OutputClear);
-            this.Invoke(rb_s, new object[] { null});
+            if (richTextBox_output.InvokeRequired)
+            {
+                // 当一个控件的InvokeRequired属性值为真时，说明有一个创建它以外的线程想访问它
+                Action<string> actionDelegate = (x) => { richTextBox_output.Clear(); };
+                this.label_RoomName.Invoke(actionDelegate);
+            }
+            else
+            {
+                richTextBox_output.Clear();
+            }
             outputBoxWritting = false;  //恢复不被占用
 
             foreach (Chat c in Chats)   //清除正在聊天
                 if (c.state == Chat.CHATSTATE.ONCHAT)
                     c.state = Chat.CHATSTATE.LINK;
             theChat.state = Chat.CHATSTATE.ONCHAT;
-            label_RoomName.Text = theChat.Name;
-            theChat.unRead = 0;
 
+            if (label_RoomName.InvokeRequired)
+            {
+                // 当一个控件的InvokeRequired属性值为真时，说明有一个创建它以外的线程想访问它
+                Action<string> actionDelegate = (x) => { label_RoomName.Text = x; };
+                this.label_RoomName.Invoke(actionDelegate, theChat.Name);
+            }
+            else
+            {
+                label_RoomName.Text = theChat.Name;
+            }
+            theChat.unRead = 0;
+            listViewUpdate();
+        }
+        void listViewUpdate()
+        {
             //更新会话列表
             while (listviewUsing) { };
             listviewUsing = true;   //占用之
             UpdateChatList cl = new UpdateChatList(DrawChatList);
             this.Invoke(cl, new object[] { Chats });
             listviewUsing = false;  //恢复不被占用
+
         }
         //群聊       
         private void button_initGrp_Click(object sender, EventArgs e)
@@ -944,10 +963,6 @@ namespace Chat_Room
                 ShowMsg_inRichTextBox(cd[i].get1stLine()+"\n", Color.Black, ha);
                 ShowMsg_inRichTextBox(cd[i].get2rdLine()+"\n", Color.Black, ha);
             }
-        }
-        public void OutputClear(List<chatData> cd)
-        {
-            richTextBox_output.Clear();
         }
         public void ShowMsg_inRichTextBox(string str, Color color, HorizontalAlignment direction)
         {
