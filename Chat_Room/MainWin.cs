@@ -55,7 +55,8 @@ namespace Chat_Room
             Frds.Add(newfrd);
             //显示对话
             Chat newchat = new Chat(newfrd);
-            listView1.Items.Add(newchat.setItem());
+            Chats.Add(newchat);
+            listViewUpdate();
         }
         #region CS
         //发送字符信息到指定socket 
@@ -170,7 +171,7 @@ namespace Chat_Room
                 Friend newfrd = new Friend(friendsQuery(userID), true, userID, userID, null);
                 Frds.Add(newfrd);
                 Chat newchat = new Chat(newfrd);
-                listView1.Items.Add(newchat.setItem());
+                listViewUpdate();
                 return;
             }
             string result = friendsQuery(idname);
@@ -218,7 +219,7 @@ namespace Chat_Room
                     Frds.Add(newfrd);
                     Chat newchat = new Chat(newfrd);
                     Chats.Add(newchat);
-                    listView1.Items.Add(newchat.setItem());
+                    listViewUpdate();
                 }
             }
         }//轮询好友
@@ -402,6 +403,7 @@ namespace Chat_Room
                                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+                
         //根据接收到的信息操作
         private delegate void UpdateChatList(List<Chat> cs);
         void DrawChatList(List<Chat> cs)
@@ -452,8 +454,9 @@ namespace Chat_Room
                         //显示对话
                         Chat newchat = new Chat(newfrd);
                         Chats.Add(newchat);
-                        newchat.setItem();
                         theChat = newchat;
+                        theChat.state = Chat.CHATSTATE.ONCHAT;
+                        listViewUpdate();
                     }
                     else if (rs == DialogResult.No)
                     {
@@ -529,13 +532,15 @@ namespace Chat_Room
                         Chat newchat = new Chat(newFrds, Gname);
                         Chats.Add(newchat);
                         theChat = newchat;
+                        theChat.state = Chat.CHATSTATE.ONCHAT;
+                        listViewUpdate();
                     }
                     else
                     {//拒绝加入
                         return;
                     }
                 }
-
+                //似乎这里不需要重绘了
                 switchChat2(theChat);
 
                 //TODO 回复ACK 发送方成功发送/而不是被拒收
@@ -587,23 +592,29 @@ namespace Chat_Room
                 }
 
             }
-            Socket[] links = new Socket[theChat.memNum];
-            for (int i = 0; i < theChat.memNum; i++)
-            {
-                links[i] = theChat.friends[i].link;
-            }    
                     //TODO 回复ACK 发送方成功发送/而不是被拒收
             theChat.state = Chat.CHATSTATE.LINK;
             //TODO
             //新开一个线程收听
             theChat.listening = true;
-            ChatAsynRecive(links, theChat);
+            //ParameterizedThreadStart pts = new ParameterizedThreadStart(ChatAsynRecive);
+            //Thread thread = new Thread(pts);
+            ////设置为后台线程，随着主线程退出而退出 
+            //thread.IsBackground = true;
+            ////启动线程     
+            //thread.Start(theChat);
+            ChatAsynRecive(theChat);
         }
         //对话监听
-        void ChatAsynRecive(Socket[] links,Chat theChat)
+        void ChatAsynRecive(Chat theChat)
         {
             byte[] data = new byte[1024];
-            for(int i = 0; i < links.Length; i++)
+            Socket[] links = new Socket[theChat.memNum];
+            for (int i = 0; i < theChat.memNum; i++)
+            {
+                links[i] = theChat.friends[i].link;
+            }
+            for (int i = 0; i < links.Length; i++)
             {
                 Socket link = links[i];
                 if (link == null) break;
@@ -716,7 +727,7 @@ namespace Chat_Room
                             this.Invoke(rb_s, new object[] { show_string, Color.Black, HorizontalAlignment.Left });
                             richTextBox_show_writing = false;  //恢复不被占用
                         }*/
-                        ChatAsynRecive(links,theChat);
+                        ChatAsynRecive(theChat);
                     }
                     catch (Exception ex)
                     {
@@ -732,7 +743,6 @@ namespace Chat_Room
                                         MessageBoxButtons.OK, MessageBoxIcon.Information);
             theChat.state = Chat.CHATSTATE.OFFLINE;
         }
-        
 
         // 对某个ID对应的学号发起连接，并传递信息
         public Socket connect2other(string ID, string Msg)
@@ -803,10 +813,10 @@ namespace Chat_Room
                     //TODO:被拒绝呢？
 
                     theChat.friends[0].link = p2ps;
-                    Socket[] links = new Socket[1];
-                    links[0] = p2ps;
+                    //Socket[] links = new Socket[1];
+                    //links[0] = p2ps;
                     //TODO 新的线程
-                    ChatAsynRecive(links, theChat);
+                    ChatAsynRecive(theChat);
                 }
             }
             //将该对话置为聊天框
@@ -919,7 +929,7 @@ namespace Chat_Room
                     while (len.Length < 2) len = "0" + len;
                     string conMsg = Message.CON + userID + "1" + len + newGp.ID + newGp.Name;
                     
-                    Socket[] p2ps = new Socket[n];
+                    //Socket[] p2ps = new Socket[n];
                     for(int i = 0; i < n; i++)
                     {
                         if (Gfrds[i].link == null)
@@ -936,9 +946,9 @@ namespace Chat_Room
                                 return;
                             }
                         }
-                        p2ps[i] = Gfrds[i].link;
+                        //p2ps[i] = Gfrds[i].link;
                     }
-                    ChatAsynRecive(p2ps, newGp);
+                    ChatAsynRecive(newGp);
                 }
             }
             else
@@ -1197,7 +1207,7 @@ namespace Chat_Room
                                 Frds.Add(newfrd);
                                 //显示对话
                                 Chat newchat = new Chat(newfrd);
-                                listView1.Items.Add(newchat.setItem());
+                listViewUpdate();
                             }
                             else if (rs == DialogResult.Cancel)
                             {
@@ -1283,7 +1293,7 @@ namespace Chat_Room
                 listening = true;
                 AsynRecive(links);
             }*/
-            
+
         }
 
         //好友类
