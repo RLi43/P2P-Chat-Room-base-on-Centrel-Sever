@@ -1013,6 +1013,8 @@ namespace Chat_Room
             richTextBox_output.SelectionAlignment = direction;
             //向文本框的文本追加文本
             richTextBox_output.AppendText(str);
+            richTextBox_output.SelectionStart = richTextBox_output.TextLength;
+            richTextBox_output.ScrollToCaret();
         }
         private void button_send_Click(object sender, EventArgs e)
         {
