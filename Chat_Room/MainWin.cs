@@ -456,8 +456,6 @@ namespace Chat_Room
                         Chat newchat = new Chat(newfrd);
                         Chats.Add(newchat);
                         theChat = newchat;
-                        theChat.state = Chat.CHATSTATE.ONCHAT;
-                        listViewUpdate();
                     }
                     else if (rs == DialogResult.No)
                     {
@@ -533,7 +531,7 @@ namespace Chat_Room
                         Chat newchat = new Chat(newFrds, Gname);
                         Chats.Add(newchat);
                         theChat = newchat;
-                        theChat.state = Chat.CHATSTATE.ONCHAT;
+                        //theChat.state = Chat.CHATSTATE.ONCHAT;
                         listViewUpdate();
                     }
                     else
@@ -542,6 +540,7 @@ namespace Chat_Room
                     }
                 }
                 //似乎这里不需要重绘了
+                listViewUpdate();
                 switchChat2(theChat);
 
                 //TODO 回复ACK 发送方成功发送/而不是被拒收
@@ -591,10 +590,9 @@ namespace Chat_Room
                         }
                     }
                 }
-
+                theChat.state = Chat.CHATSTATE.LINK;
             }
                     //TODO 回复ACK 发送方成功发送/而不是被拒收
-            theChat.state = Chat.CHATSTATE.LINK;
             //TODO
             //新开一个线程收听
             theChat.listening = true;
@@ -840,14 +838,19 @@ namespace Chat_Room
         }
         void switchChat2(Chat theChat)
         {
-            //清除聊天框
-            while (outputBoxWritting) { };
+            int count = 0;
+            foreach (Chat c in Chats)   //清除正在聊天
+                if (c.state == Chat.CHATSTATE.ONCHAT) count++;
+            if (count == 1&&theChat.state==Chat.CHATSTATE.ONCHAT) return;
+
+                    //清除聊天框
+                    while (outputBoxWritting) { };
             outputBoxWritting = true;
             if (richTextBox_output.InvokeRequired)
             {
                 // 当一个控件的InvokeRequired属性值为真时，说明有一个创建它以外的线程想访问它
                 Action<int> actionDelegate = (x) => { richTextBox_output.Clear(); };
-                this.label_RoomName.Invoke(actionDelegate,1);
+                this.richTextBox_output.Invoke(actionDelegate,1);
             }
             else
             {
@@ -1168,7 +1171,7 @@ namespace Chat_Room
                         }
                     case CHATSTATE.ONCHAT:
                         {
-                            bkcl = Color.White;
+                            bkcl = Color.LightBlue;
                             break;
                         }
                 }
