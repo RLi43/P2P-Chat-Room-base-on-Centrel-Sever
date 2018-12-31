@@ -33,12 +33,12 @@
 
 ### 程序实验环境
 
-|        |                    |
-| ------ | ------------------ |
-| 目标框架   | .net framework 4.  |
-| 编辑器    | VS2015             |
-| 计算机系统  | Windows10 家庭版 1803 |
-| 操作系统版本 | 17134.472          |
+|              |                       |
+| ------------ | --------------------- |
+| 目标框架     | .net framework 4.6.1  |
+| 编辑器       | VS2015                |
+| 计算机系统   | Windows10 家庭版 1803 |
+| 操作系统版本 | 17134.472             |
 
 ### 程序功能简介
 
@@ -185,12 +185,16 @@ Chat收听相关的Sockets，根据信息的类型进行动作。
     CON+userIDXXXXX+0
   * Group
     CON+userIDXXXXX+1+length(2)+membersIDX+GroupName
-
 * 信息： s--i'm sever
   * Single 
     MSG+userIDXXXXX+0+length(4)+messages故发送时间以接收方为准
   * Group.
     MSG+userIDXXXXX+1+length(2)+membersIDX+length(4)+messages
+* Shake
+  * SHK+userIDXXXXX+0
+  * SHK+userIDXXXXX+1+length(2)+membersIDX
+* File
+  * FLE+userIDXXXXX+0+Filename+'-'+FileLength
 
 数据类型：
 
