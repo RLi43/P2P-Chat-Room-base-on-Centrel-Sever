@@ -24,7 +24,7 @@ namespace Chat_Room
         IPAddress userIP;
         List<Chat> Chats = new List<Chat>();
         List<Friend> Frds = new List<Friend>();
-        List<string> ChattingID = new List<string>();
+        List<string> BlackList = new List<string>();
         int localPort;
         public MainWin()
         {
@@ -417,9 +417,7 @@ namespace Chat_Room
         //大门
         public void GateMsgTrans(string Recv, Socket clientSocket)
         {
-
-            //TODO： 黑名单需要吗
-
+            
             //message 检查
 
             string type = Recv.Substring(0, 3);
@@ -427,7 +425,10 @@ namespace Chat_Room
             string remoteID = Recv.Substring(3, 10);
             bool isSingle = Recv[13] == '0';
             string ChatID = remoteID;
+            //黑名单
+            if (BlackList.Contains(remoteID)) return;
             string Gname = "";
+
             string conMsg = Message.CON + userID + "1" + Recv.Substring(14);//因为单独聊天不需要再次发送
             if (!isSingle)
             {
@@ -455,23 +456,19 @@ namespace Chat_Room
                         Chats.Add(newchat);
                         theChat = newchat;
                     }
-                    else if (rs == DialogResult.No)
+                    else 
                     {
                         //中断本次对话 不回应
+                        string msg = Message.RFS + userID;
+                        SendMsg2(msg, clientSocket);
+                        clientSocket.Close();
+                        if (rs == DialogResult.No)
+                        {
+                            //拒绝聊天——加入黑名单
+                            BlackList.Add(remoteID);
+                        }
                         return;
                     }
-                    else
-                    {
-                        //拒绝聊天——加入黑名单
-                        return;
-                    }
-                    /*
-                    //TODO 不知道这里的内容有没有改
-                    string debug = "Something";
-                    if (theChat.friends[0].link == null) debug = "null";
-                    Console.WriteLine("Now theChat.friends[0].link is" + debug);
-
-                    theChat.friends[0].link = clientSocket;*/
                 }
                 else //群聊
                 {
@@ -500,7 +497,8 @@ namespace Chat_Room
                                     string ip = friendsQuery(idname);
                                     if (!isIP(ip))
                                     {
-                                        Console.WriteLine("发生错误 " + idname + " 不在线");
+                                        //Console.WriteLine("发生错误： " + idname + " 不在线");
+                                        MessageBox.Show("发生错误： " + idname + " 不在线");
                                         return;
                                     }
                                     Frds[i].IP = ip;
@@ -545,6 +543,7 @@ namespace Chat_Room
             }
             else
             {
+                //已有会话（曾经连上过）的重新连接
                 theChat = Chats[destInd];
                 if (theChat.state > Chat.CHATSTATE.ONLINE)
                 {
@@ -553,7 +552,6 @@ namespace Chat_Room
                     {
                         theChat.Name = Gname;
                     }
-                    //TODO ACK确认一下
                     return;
                 }
                 else
@@ -562,7 +560,6 @@ namespace Chat_Room
                     if (isSingle)
                     {
                         theChat.friends[0].link = clientSocket;
-
                     }
                     else //群聊
                     {
@@ -590,17 +587,7 @@ namespace Chat_Room
                 }
                 theChat.state = Chat.CHATSTATE.LINK;
             }
-                    //TODO 回复ACK 发送方成功发送/而不是被拒收
-            //TODO
-            //新开一个线程收听
             theChat.listening = true;
-            //ParameterizedThreadStart pts = new ParameterizedThreadStart(ChatAsynRecive);
-            //Thread thread = new Thread(pts);
-            ////设置为后台线程，随着主线程退出而退出 
-            //thread.IsBackground = true;
-            ////启动线程     
-            //thread.Start(theChat);
-
             //ChatAsynRecive(theChat);
             //创建一个通信线程      
             Thread thread = new Thread(ChatAsynRecive);
@@ -638,7 +625,7 @@ namespace Chat_Room
                         {
                             Console.WriteLine(ex.ToString());
                             theChat.state = Chat.CHATSTATE.OFFLINE;
-                            MessageBox.Show("和" + theChat.Name + " 连接中断", "信息提示",
+                            MessageBox.Show("信息接收错误，和" + theChat.Name + " 连接中断", "信息提示",
                                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                             //TODO 关闭线程
                             link.Close();
@@ -646,12 +633,11 @@ namespace Chat_Room
                         if (length == 0)
                         {
                             //删掉
-                            MessageBox.Show("好友退出了会话", "信息提示",
+                            MessageBox.Show("好友"+curFrd.Name+"退出了会话", "信息提示",
                                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                             theChat.state = Chat.CHATSTATE.OFFLINE;
                             listViewUpdate();
-                            //TODO:关闭线程
-                            //
+                            curFrd.link.Close();
                             return;
                         }
 
@@ -660,30 +646,23 @@ namespace Chat_Room
                         {
                             case Message.CON:
                                 {
-                                    //TODO : send ACK
-                                    break;
-                                }
-                            case Message.FIN:
-                                {
-                                    //可以什么都不做来着
-                                    break;
-                                }
-                            case Message.ACK:
-                                {
-                                    //TODO 
-                                    break;
+                                    //已经连上又发一遍？干啥呢？ 修改群名？
+                                    if (theChat.isGroup)
+                                    {
+                                        theChat.Name = Recv.Substring(16+10*theChat.memNum);
+                                    }break;
                                 }
                             case Message.MSG:
                                 {
                                     //务必先取得连接之后才能对话
                                     if (theChat.state > Chat.CHATSTATE.ONLINE)
                                     {
+                                        System.Media.SystemSounds.Beep.Play();
                                         int startInd = 18;
                                         if (theChat.isGroup)
                                         {
                                             startInd = 20 + 10 * theChat.memNum;
                                         }
-                                        //int l = int.Parse(Recv.Substring(startInd-4, 4));
                                         string Msgs = Recv.Substring(startInd);
                                         //增加聊天记录
                                         chatData newDa = new chatData(curFrd.Name,
@@ -705,15 +684,16 @@ namespace Chat_Room
                                         }
                                     }
                                     else
-                                    {//未确认方发送的连接
+                                    {//未确认方发送的连接 不再监听
                                         return;
                                     }
                                     break;
                                 }
                             case Message.SHK:
                                 {
+                                    System.Media.SystemSounds.Beep.Play();
                                     Shake shake = new Shake(Window_Shake);
-                                    this.Invoke(shake, new object[] { });
+                                    Invoke(shake, new object[] { });
                                     break;
                                 }
                             //https://blog.csdn.net/fsdad/article/details/73991751
@@ -732,14 +712,30 @@ namespace Chat_Room
                                         //委托主线程接收
 
                                         FileSave r_s = new FileSave(fileRecieve);
-                                        this.Invoke(r_s, new object[] {filename, fileLength,curFrd,theChat });
-                                        
+                                        Invoke(r_s, new object[] {filename, fileLength,curFrd,theChat });                                        
                                     }
                                     else return;
                                     break;
                                 }
+                            case Message.RFS:
+                                {
+                                    //被拒绝
+                                    if (theChat.state > Chat.CHATSTATE.ONLINE)
+                                    {
+                                        string msgShow="";
+                                        if (theChat.isGroup)
+                                        {
+                                            msgShow = theChat.Name + "-";
+                                        }
+                                        msgShow += curFrd.Name + " 拒绝了您的会话";
+                                        MessageBox.Show(msgShow);
+                                    }
+                                    curFrd.link.Close();
+                                    break;
+                                }
                             default:
                                 {
+                                    //不知道对方发的啥
                                     break;
                                 }
                         }
@@ -933,7 +929,8 @@ namespace Chat_Room
         //群聊       
         private void button_initGrp_Click(object sender, EventArgs e)
         {
-            var selected = listView1.SelectedItems;
+            //https://blog.csdn.net/lucky51222/article/details/41892429
+            var selected = listView1.CheckedItems;
             //Debug
             foreach (ListViewItem item in selected)
             {
@@ -1040,9 +1037,10 @@ namespace Chat_Room
             HorizontalAlignment ha;
             for(int i = 0; i < cd.Count; i++)
             {
+                ShowMsg_inRichTextBox(cd[i].time.ToShortTimeString() + "\n", Color.Black, HorizontalAlignment.Center);
                 if (cd[i].isself) ha = HorizontalAlignment.Right; else ha = HorizontalAlignment.Left;
-                ShowMsg_inRichTextBox(cd[i].get1stLine()+"\n", Color.Black, ha);
-                ShowMsg_inRichTextBox(cd[i].get2rdLine()+"\n", Color.Black, ha);
+                ShowMsg_inRichTextBox(cd[i].speakerName+"\n", Color.Black, ha);
+                ShowMsg_inRichTextBox(cd[i].context+"\n", Color.Black, ha);
             }
         }
         public void ShowMsg_inRichTextBox(string str, Color color, HorizontalAlignment direction)
@@ -1113,6 +1111,35 @@ namespace Chat_Room
             richTextBox_Input.Text = "";
         }
 
+        //聊天记录
+        private void button_data_Click(object sender, EventArgs e)
+        {
+            text inp = new text("查找聊天记录:");
+            DialogResult dr = inp.ShowDialog();
+            if (dr == DialogResult.OK && inp.Value.Length > 0)
+            {
+                string keyS = inp.Value;
+                int index = richTextBox_output.Find(keyS, RichTextBoxFinds.WholeWord);//调用find方法，并设置区分全字匹配
+                int startPos = index;
+                int nextIndex = 0;
+                while (nextIndex != startPos)//循环查找字符串，并用蓝色加粗12号Times New Roman标记之
+                {
+                    if (nextIndex == -1)//若查到文件末尾，则充值nextIndex为初始位置的值，使其达到初始位置，顺利结束循环，否则会有异常。
+                    { nextIndex = startPos;
+                        MessageBox.Show("已搜索完毕");
+                        break;
+                    }
+                    richTextBox_output.SelectionStart = index;
+                    richTextBox_output.SelectionLength = keyS.Length;
+                    richTextBox_output.SelectionColor = Color.Blue;
+                    richTextBox_output.SelectionFont = new Font("Times New Roman", (float)12, FontStyle.Bold);
+                    richTextBox_output.Focus();
+                    nextIndex = richTextBox_output.Find(keyS, index + keyS.Length, RichTextBoxFinds.WholeWord);
+                    
+                    index = nextIndex;
+                }
+            }
+        }
 
         //窗口抖动
         //发送
@@ -1614,6 +1641,7 @@ namespace Chat_Room
             public const string MSG = "嘀嘀嘀";
             public const string SHK = "来摇摆";
             public const string FLE = "发文件";
+            public const string RFS = "哥屋恩";
         }
 
         private void richTextBox_Input_Enter(object sender, EventArgs e)
@@ -1648,5 +1676,18 @@ namespace Chat_Room
             }
                 MessageBox.Show(detail);
         }
+
     }
 }
+/*SoundPlayer player = new SoundPlayer();
+player.SoundLocation = @"D:\test.wav";
+player.Load(); //同步加载声音
+player.Play(); //启用新线程播放
+//player.PlayLooping(); //循环播放模式
+//player.PlaySync(); //UI线程同步播放
+--------------------- 
+作者：believe209 
+来源：CSDN 
+原文：https://blog.csdn.net/wangzhen209/article/details/53285651 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+ */

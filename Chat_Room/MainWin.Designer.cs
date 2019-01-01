@@ -65,7 +65,7 @@
             this.panel1.Controls.Add(this.button_initGrp);
             this.panel1.Controls.Add(this.textBox_find);
             this.panel1.Location = new System.Drawing.Point(22, 12);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(500, 900);
             this.panel1.TabIndex = 0;
@@ -81,7 +81,7 @@
             this.listView1.LabelEdit = true;
             this.listView1.LabelWrap = false;
             this.listView1.Location = new System.Drawing.Point(12, 56);
-            this.listView1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.listView1.Margin = new System.Windows.Forms.Padding(6);
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(472, 768);
             this.listView1.TabIndex = 12;
@@ -106,7 +106,7 @@
             this.button_chgName.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_chgName.Font = new System.Drawing.Font("方正清刻本悦宋简体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_chgName.Location = new System.Drawing.Point(172, 840);
-            this.button_chgName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button_chgName.Margin = new System.Windows.Forms.Padding(4);
             this.button_chgName.Name = "button_chgName";
             this.button_chgName.Size = new System.Drawing.Size(152, 44);
             this.button_chgName.TabIndex = 11;
@@ -121,7 +121,7 @@
             this.button_delete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_delete.Font = new System.Drawing.Font("方正清刻本悦宋简体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_delete.Location = new System.Drawing.Point(332, 840);
-            this.button_delete.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button_delete.Margin = new System.Windows.Forms.Padding(4);
             this.button_delete.Name = "button_delete";
             this.button_delete.Size = new System.Drawing.Size(152, 44);
             this.button_delete.TabIndex = 9;
@@ -136,7 +136,7 @@
             this.button_find.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_find.Font = new System.Drawing.Font("方正清刻本悦宋简体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_find.Location = new System.Drawing.Point(392, 8);
-            this.button_find.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button_find.Margin = new System.Windows.Forms.Padding(4);
             this.button_find.Name = "button_find";
             this.button_find.Size = new System.Drawing.Size(92, 44);
             this.button_find.TabIndex = 4;
@@ -151,7 +151,7 @@
             this.button_initGrp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_initGrp.Font = new System.Drawing.Font("方正清刻本悦宋简体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_initGrp.Location = new System.Drawing.Point(12, 840);
-            this.button_initGrp.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button_initGrp.Margin = new System.Windows.Forms.Padding(4);
             this.button_initGrp.Name = "button_initGrp";
             this.button_initGrp.Size = new System.Drawing.Size(152, 44);
             this.button_initGrp.TabIndex = 8;
@@ -165,7 +165,7 @@
             this.textBox_find.Font = new System.Drawing.Font("微软雅黑", 10.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.textBox_find.ForeColor = System.Drawing.SystemColors.ControlDark;
             this.textBox_find.Location = new System.Drawing.Point(12, 12);
-            this.textBox_find.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBox_find.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_find.Name = "textBox_find";
             this.textBox_find.Size = new System.Drawing.Size(372, 36);
             this.textBox_find.TabIndex = 0;
@@ -188,7 +188,7 @@
             this.panel2.Controls.Add(this.button_file);
             this.panel2.Controls.Add(this.button_Face);
             this.panel2.Location = new System.Drawing.Point(546, 12);
-            this.panel2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panel2.Margin = new System.Windows.Forms.Padding(4);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(900, 900);
             this.panel2.TabIndex = 1;
@@ -212,7 +212,7 @@
             this.button_send.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_send.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_send.Location = new System.Drawing.Point(766, 848);
-            this.button_send.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button_send.Margin = new System.Windows.Forms.Padding(4);
             this.button_send.Name = "button_send";
             this.button_send.Size = new System.Drawing.Size(130, 48);
             this.button_send.TabIndex = 1;
@@ -223,7 +223,7 @@
             // progressBar1
             // 
             this.progressBar1.Location = new System.Drawing.Point(12, 852);
-            this.progressBar1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.progressBar1.Margin = new System.Windows.Forms.Padding(4);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(240, 44);
             this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
@@ -237,7 +237,7 @@
             this.richTextBox_Input.EnableAutoDragDrop = true;
             this.richTextBox_Input.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.richTextBox_Input.Location = new System.Drawing.Point(14, 698);
-            this.richTextBox_Input.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.richTextBox_Input.Margin = new System.Windows.Forms.Padding(4);
             this.richTextBox_Input.Name = "richTextBox_Input";
             this.richTextBox_Input.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.richTextBox_Input.Size = new System.Drawing.Size(882, 142);
@@ -253,12 +253,13 @@
             this.button_data.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_data.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_data.Location = new System.Drawing.Point(184, 642);
-            this.button_data.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button_data.Margin = new System.Windows.Forms.Padding(4);
             this.button_data.Name = "button_data";
             this.button_data.Size = new System.Drawing.Size(48, 48);
             this.button_data.TabIndex = 5;
             this.button_data.Text = "💬";
             this.button_data.UseVisualStyleBackColor = false;
+            this.button_data.Click += new System.EventHandler(this.button_data_Click);
             // 
             // button_detail
             // 
@@ -267,7 +268,7 @@
             this.button_detail.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_detail.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_detail.Location = new System.Drawing.Point(838, 8);
-            this.button_detail.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button_detail.Margin = new System.Windows.Forms.Padding(4);
             this.button_detail.Name = "button_detail";
             this.button_detail.Size = new System.Drawing.Size(54, 48);
             this.button_detail.TabIndex = 4;
@@ -282,7 +283,7 @@
             this.buttonShake.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonShake.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.buttonShake.Location = new System.Drawing.Point(128, 642);
-            this.buttonShake.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.buttonShake.Margin = new System.Windows.Forms.Padding(4);
             this.buttonShake.Name = "buttonShake";
             this.buttonShake.Size = new System.Drawing.Size(48, 48);
             this.buttonShake.TabIndex = 4;
@@ -308,7 +309,7 @@
             this.richTextBox_output.EnableAutoDragDrop = true;
             this.richTextBox_output.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.richTextBox_output.Location = new System.Drawing.Point(14, 56);
-            this.richTextBox_output.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.richTextBox_output.Margin = new System.Windows.Forms.Padding(4);
             this.richTextBox_output.Name = "richTextBox_output";
             this.richTextBox_output.ReadOnly = true;
             this.richTextBox_output.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
@@ -323,7 +324,7 @@
             this.button_file.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_file.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_file.Location = new System.Drawing.Point(72, 642);
-            this.button_file.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button_file.Margin = new System.Windows.Forms.Padding(4);
             this.button_file.Name = "button_file";
             this.button_file.Size = new System.Drawing.Size(48, 48);
             this.button_file.TabIndex = 2;
@@ -338,7 +339,7 @@
             this.button_Face.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_Face.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_Face.Location = new System.Drawing.Point(16, 642);
-            this.button_Face.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button_Face.Margin = new System.Windows.Forms.Padding(4);
             this.button_Face.Name = "button_Face";
             this.button_Face.Size = new System.Drawing.Size(48, 48);
             this.button_Face.TabIndex = 3;
@@ -362,7 +363,7 @@
             this.Controls.Add(this.panel1);
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainWin";
             this.Text = "网上聊天室";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWin_FormClosing);
