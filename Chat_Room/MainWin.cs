@@ -224,8 +224,8 @@ namespace Chat_Room
                     Frds.Add(newfrd);
                     Chat newchat = new Chat(newfrd);
                     Chats.Add(newchat);
-                    listViewUpdate();
                 }
+                listViewUpdate();
             }
         }//轮询好友
         //可能需要考虑占用的问题
@@ -886,8 +886,8 @@ namespace Chat_Room
                 if (c.state == Chat.CHATSTATE.ONCHAT) count++;
             if (count == 1&&theChat.state==Chat.CHATSTATE.ONCHAT) return;
 
-                    //清除聊天框
-                    while (outputBoxWritting) { };
+            //清除聊天框
+            while (outputBoxWritting) { };
             outputBoxWritting = true;
             if (richTextBox_output.InvokeRequired)
             {
@@ -900,6 +900,7 @@ namespace Chat_Room
                 richTextBox_output.Clear();
             }
             outputBoxWritting = false;  //恢复不被占用
+            addChatList(theChat.Datas);
 
             foreach (Chat c in Chats)   //清除正在聊天
                 if (c.state == Chat.CHATSTATE.ONCHAT)
@@ -959,6 +960,7 @@ namespace Chat_Room
                 if (item.SubItems[2].Text == userID)
                 {
                     if (n == 2) return;//单人
+                    n--;
                     continue;
                 }
                 int ind = Frds.FindIndex(x => x.ID == item.SubItems[2].Text);
@@ -1031,6 +1033,14 @@ namespace Chat_Room
             List<chatData> drawC = new List<chatData>();
             drawC.Add(cd);
             this.Invoke(rb_s, new object[] { drawC });
+            outputBoxWritting = false;  //恢复不被占用
+        }
+        void addChatList(List<chatData> cd)
+        {
+            while (outputBoxWritting) { };
+            outputBoxWritting = true;   //占用之
+            RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
+            this.Invoke(rb_s, new object[] { cd });
             outputBoxWritting = false;  //恢复不被占用
         }
         private delegate void RichBox_Show(List<chatData> cd);
@@ -1113,7 +1123,7 @@ namespace Chat_Room
             outputBoxWritting = false;  //恢复不被占用
             richTextBox_Input.Text = "";
         }
-
+        
         //聊天记录
         private void button_data_Click(object sender, EventArgs e)
         {
@@ -1122,25 +1132,34 @@ namespace Chat_Room
             if (dr == DialogResult.OK && inp.Value.Length > 0)
             {
                 string keyS = inp.Value;
-                int index = richTextBox_output.Find(keyS, RichTextBoxFinds.WholeWord);//调用find方法，并设置区分全字匹配
+                int index = richTextBox_output.Find(keyS,RichTextBoxFinds.None);//调用find方法，并设置区分全字匹配
                 int startPos = index;
-                int nextIndex = 0;
-                while (nextIndex != startPos)//循环查找字符串，并用蓝色加粗12号Times New Roman标记之
+                if (index != -1)
                 {
-                    if (nextIndex == -1)//若查到文件末尾，则充值nextIndex为初始位置的值，使其达到初始位置，顺利结束循环，否则会有异常。
-                    { nextIndex = startPos;
-                        MessageBox.Show("已搜索完毕");
-                        break;
-                    }
                     richTextBox_output.SelectionStart = index;
                     richTextBox_output.SelectionLength = keyS.Length;
-                    richTextBox_output.SelectionColor = Color.Blue;
-                    richTextBox_output.SelectionFont = new Font("Times New Roman", (float)12, FontStyle.Bold);
                     richTextBox_output.Focus();
-                    nextIndex = richTextBox_output.Find(keyS, index + keyS.Length, RichTextBoxFinds.WholeWord);
-                    
-                    index = nextIndex;
+                    button_data.Tag = keyS;
+                    button_next.Tag = index;
+                    button_next.Visible = true;
                 }
+            }
+        }
+        private void button_next_Click(object sender, EventArgs e)
+        {
+            string keyS = button_data.Tag.ToString();
+            int index = int.Parse(button_next.Tag.ToString());
+            index = richTextBox_output.Find(keyS, index + keyS.Length, RichTextBoxFinds.None);
+            button_next.Tag = index.ToString();
+            if (index == -1)//若查到文件末尾
+            {
+                MessageBox.Show("已搜索完毕");
+                button_next.Visible = false;
+            }else
+            {
+                richTextBox_output.SelectionStart = index;
+                richTextBox_output.SelectionLength = keyS.Length;
+                richTextBox_output.Focus();
             }
         }
 

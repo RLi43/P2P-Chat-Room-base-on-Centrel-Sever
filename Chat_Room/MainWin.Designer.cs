@@ -52,6 +52,7 @@
             this.button_file = new System.Windows.Forms.Button();
             this.button_Face = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.button_next = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -176,6 +177,7 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.button_next);
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.button_send);
             this.panel2.Controls.Add(this.progressBar1);
@@ -351,6 +353,22 @@
             this.timer1.Interval = 20;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick_1);
             // 
+            // button_next
+            // 
+            this.button_next.BackColor = System.Drawing.Color.DarkCyan;
+            this.button_next.FlatAppearance.BorderSize = 0;
+            this.button_next.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button_next.Font = new System.Drawing.Font("方正清刻本悦宋简体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_next.Location = new System.Drawing.Point(240, 642);
+            this.button_next.Margin = new System.Windows.Forms.Padding(4);
+            this.button_next.Name = "button_next";
+            this.button_next.Size = new System.Drawing.Size(48, 48);
+            this.button_next.TabIndex = 8;
+            this.button_next.Text = "⏭";
+            this.button_next.UseVisualStyleBackColor = false;
+            this.button_next.Visible = false;
+            this.button_next.Click += new System.EventHandler(this.button_next_Click);
+            // 
             // MainWin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
@@ -399,5 +417,6 @@
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button button_next;
     }
 }
