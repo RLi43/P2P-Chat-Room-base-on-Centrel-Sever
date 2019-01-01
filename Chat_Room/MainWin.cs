@@ -547,7 +547,6 @@ namespace Chat_Room
                                 newFrds.Add(newfrd);
                             }
                             int inde = Frds.FindIndex(x => x.ID == remoteID);
-                            theFrd = Frds[inde];
                         }
                         //建立会话
                         Chat newchat = new Chat(newFrds, Gname);
