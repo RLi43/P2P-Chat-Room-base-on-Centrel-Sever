@@ -123,7 +123,11 @@ namespace Chat_Room
             {
                 foreach(Friend fd in Frds)
                 {
-                    if (fd.link != null) fd.link.Close();
+                    if (fd.link != null)
+                    {
+                        fd.link.Close();
+                        fd.online = false;
+                    }
                 }
                 SendMsg2("logout" + userID, SocketToSever);
                 string strRevMsg = receiveFromSever();
@@ -703,162 +707,161 @@ namespace Chat_Room
                 //{
                 //    Friend curFrd = theChat.friends[cnt];
                 //    Socket link = curFrd.link;
-                    if (link == null) return;
-                    link.BeginReceive(data, 0, data.Length, SocketFlags.None,
-                    asyncResult =>
+                if (link == null) return;
+                link.BeginReceive(data, 0, data.Length, SocketFlags.None,
+                asyncResult =>
+                {
+                    int length = 0;
+                    string Recv = "";
+                    try
                     {
-                        int length = 0;
-                        string Recv = "";
-                        try
-                        {
-                            length = link.EndReceive(asyncResult);
-                            Recv = Encoding.UTF8.GetString(data, 0, length);
-                            if(Recv.Length<50)
-                                Console.WriteLine(link.RemoteEndPoint.ToString() + " : " + Recv);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            MessageBox.Show("信息接收错误，和" + link.RemoteEndPoint.ToString() + " 连接中断", "信息提示",
-                                                    MessageBoxButtons.OK, MessageBoxIcon.Information);                            
-                            link.Close();
-                        }
-                        if (length == 0)
-                        {
+                        length = link.EndReceive(asyncResult);
+                        Recv = Encoding.UTF8.GetString(data, 0, length);
+                        if (Recv.Length < 50)
+                            Console.WriteLine(link.RemoteEndPoint.ToString() + " : " + Recv);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        MessageBox.Show("信息接收错误，和" + link.RemoteEndPoint.ToString() + " 连接中断", "信息提示",
+                                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        link.Close();
+                        theFrd.online = false;
+                    }
+                    if (length == 0)
+                    {
                             //删掉
-                            MessageBox.Show("好友"+theFrd.Name+"退出了会话", "信息提示",
-                                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            theFrd.online = false;
-                            listViewUpdate();   //会自动判断有该frd的Chat下线
-                            theFrd.link.Close();
-                            return;
-                        }
-                        if (Message.check(Recv))
-                        {
-                            string type = Recv.Substring(0, 3);
-                            bool isSingle = Recv[13] == '0';
-                            string ChatID = theFrd.ID;
+                            MessageBox.Show("好友" + theFrd.Name + "退出了会话", "信息提示",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        theFrd.online = false;
+                        listViewUpdate();   //会自动判断有该frd的Chat下线
+                        theFrd.link.Close();
+                        return;
+                    }
+                    if (Message.check(Recv))
+                    {
+                        string type = Recv.Substring(0, 3);
+                        bool isSingle = Recv[13] == '0';
+                        string ChatID = theFrd.ID;
                             //黑名单
                             if (BlackList.Contains(theFrd.ID)) return;
-                            string Gname = "";                            
-                            if (!isSingle)
-                            {
-                                int len = int.Parse(Recv.Substring(14, 2)) * 10;
-                                ChatID = Recv.Substring(16, len);
-                                Gname = Recv.Substring(16 + len);
-                            }
-                            int chid = Chats.FindIndex(x => x.ID == ChatID);
-                            if (chid == -1)
-                            {
-                                Console.WriteLine("Error! 信息对应的会话未找到");
-                                return;
-                            }
-                            Chat theChat = Chats[chid];
-                            switch (type)
-                            {
-                                case Message.CON:
-                                    {                                        
+                        string Gname = "";
+                        if (!isSingle)
+                        {
+                            int len = int.Parse(Recv.Substring(14, 2)) * 10;
+                            ChatID = Recv.Substring(16, len);
+                            Gname = Recv.Substring(16 + len);
+                        }
+                        int chid = Chats.FindIndex(x => x.ID == ChatID);
+                        if (chid == -1)
+                        {
+                            Console.WriteLine("Error! 信息对应的会话未找到");
+                            return;
+                        }
+                        Chat theChat = Chats[chid];
+                        switch (type)
+                        {
+                            case Message.CON:
+                                {
                                         //已经连上又发一遍？
                                         //新的聊天的内容 
                                         //修改群名？
                                         if (theChat.isGroup)
-                                        {
-                                            theChat.Name = Recv.Substring(16 + 10 * theChat.memNum);
-                                        }
-                                        break;
-                                    }
-                                case Message.MSG:
                                     {
+                                        theChat.Name = Recv.Substring(16 + 10 * theChat.memNum);
+                                    }
+                                    break;
+                                }
+                            case Message.MSG:
+                                {
                                         //务必先取得连接之后才能对话
                                         if (theChat.state > Chat.CHATSTATE.ONLINE)
+                                    {
+                                        System.Media.SystemSounds.Beep.Play();
+                                        int startInd = 18;
+                                        if (theChat.isGroup)
                                         {
-                                            System.Media.SystemSounds.Beep.Play();
-                                            int startInd = 18;
-                                            if (theChat.isGroup)
-                                            {
-                                                startInd = 20 + 10 * theChat.memNum;
-                                            }
-                                            string Msgs = Recv.Substring(startInd);
+                                            startInd = 20 + 10 * theChat.memNum;
+                                        }
+                                        string Msgs = Recv.Substring(startInd);
                                             //增加聊天记录
                                             chatData newDa = new chatData(theFrd.Name,
-                                                    false, Msgs, DateTime.Now);
-                                            theChat.Datas.Add(newDa);
-                                            theChat.unRead++;
+                                                false, Msgs, DateTime.Now);
+                                        theChat.Datas.Add(newDa);
+                                        theChat.unRead++;
 
                                             //当前对话直接将消息绘制,即增加最后一条
                                             if (theChat.state == Chat.CHATSTATE.ONCHAT)
-                                            {
-                                                addChatList(newDa);
-                                                theChat.unRead = 0;
-                                            }
-                                            else
-                                            {
-                                                theChat.state = Chat.CHATSTATE.NEWS;
-                                                //重绘 更新会话列表
-                                                listViewUpdate();
-                                            }
+                                        {
+                                            addChatList(newDa);
+                                            theChat.unRead = 0;
                                         }
                                         else
-                                        {//未确认方发送的连接 不再监听
-                                            return;
+                                        {
+                                            theChat.state = Chat.CHATSTATE.NEWS;
+                                                //重绘 更新会话列表
+                                                listViewUpdate();
                                         }
-                                        break;
                                     }
-                                case Message.SHK:
-                                    {
-                                        System.Media.SystemSounds.Beep.Play();
-                                        Shake shake = new Shake(Window_Shake);
-                                        Invoke(shake, new object[] { });
-                                        break;
+                                    else
+                                    {//未确认方发送的连接 不再监听
+                                            return;
                                     }
+                                    break;
+                                }
+                            case Message.SHK:
+                                {
+                                    System.Media.SystemSounds.Beep.Play();
+                                    Shake shake = new Shake(Window_Shake);
+                                    Invoke(shake, new object[] { });
+                                    break;
+                                }
                                 //https://blog.csdn.net/fsdad/article/details/73991751
                                 case Message.FLE:
+                                {
+                                    if (theChat.state > Chat.CHATSTATE.ONLINE)
                                     {
-                                        if (theChat.state > Chat.CHATSTATE.ONLINE)
+                                        int startInd = 14;
+                                        if (theChat.isGroup)
                                         {
-                                            int startInd = 14;
-                                            if (theChat.isGroup)
-                                            {
-                                                startInd = 16 + 10 * theChat.memNum;
-                                            }
-                                            string FlieInf = Recv.Substring(startInd);
-                                            string filename = FlieInf.Split('-').First();       //文件名
+                                            startInd = 16 + 10 * theChat.memNum;
+                                        }
+                                        string FlieInf = Recv.Substring(startInd);
+                                        string filename = FlieInf.Split('-').First();       //文件名
                                             long fileLength = Convert.ToInt64(FlieInf.Split('-').Last());//文件长度
                                                                                                          //委托主线程接收
 
                                             FileSave r_s = new FileSave(fileRecieve);
-                                            Invoke(r_s, new object[] { filename, fileLength, theFrd, theChat });
-                                        }
-                                        else return;
-                                        break;
+                                        Invoke(r_s, new object[] { filename, fileLength, theFrd, theChat });
                                     }
-                                case Message.RFS:
-                                    {
+                                    else return;
+                                    break;
+                                }
+                            case Message.RFS:
+                                {
                                         //被拒绝
                                         if (theChat.state > Chat.CHATSTATE.ONLINE)
-                                        {
-                                            string msgShow = "";
-                                            if (theChat.isGroup)
-                                            {
-                                                msgShow = theChat.Name + "-";
-                                            }
-                                            msgShow += theFrd.Name + " 拒绝了您的会话";
-                                            MessageBox.Show(msgShow);
-                                        }
-                                        theFrd.link.Close();
-                                        break;
-                                    }
-                                default:
                                     {
+                                        string msgShow = "";
+                                        if (theChat.isGroup)
+                                        {
+                                            msgShow = theChat.Name + "-";
+                                        }
+                                        msgShow += theFrd.Name + " 拒绝了您的会话";
+                                        MessageBox.Show(msgShow);
+                                    }
+                                    theFrd.link.Close();theFrd.online = false;
+                                    break;
+                                }
+                            default:
+                                {
                                         //不知道对方发的啥
                                         break;
-                                    }
-                            }
+                                }
                         }
-                        FrdAsynRecive(theFrd);
-                    }, null);
-
-                //}
+                    }
+                    FrdAsynRecive(theFrd);
+                }, null);
             }
             catch (Exception ex)
             {
@@ -963,6 +966,7 @@ namespace Chat_Room
                     try
                     {
                         Socket p2p = connect2other(fd.ID, conMsg);
+                        fd.link = p2p;
                         FrdAsynRecive(fd);
                     }
                     catch (Exception ex)
@@ -1207,7 +1211,7 @@ namespace Chat_Room
             {
                 try
                 {
-                    if (fd.link == null) { Console.WriteLine(fd.ID+""); break; }
+                    if (fd.link == null) { Console.WriteLine(fd.ID+" 发送失败 没有连接"); break; }
                     SendMsg2(msg, fd.link);
                 }
                 catch (Exception ex)
