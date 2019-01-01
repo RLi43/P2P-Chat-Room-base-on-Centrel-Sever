@@ -126,6 +126,7 @@ namespace Chat_Room
                     if (fd.link != null)
                     {
                         fd.link.Close();
+                        fd.link = null;
                         fd.online = false;
                     }
                 }
@@ -474,6 +475,7 @@ namespace Chat_Room
                         string msg = Message.RFS + userID;
                         SendMsg2(msg, clientSocket);
                         clientSocket.Close();
+                        theFrd.link = null;
                         if (rs == DialogResult.No)
                         {
                             //拒绝聊天——加入黑名单
@@ -487,7 +489,7 @@ namespace Chat_Room
                     DialogResult rs = MessageBox.Show("新的朋友 " +
                         remoteID + "邀请您加入群聊：" + Gname, "会话请求"
                         , MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (rs == DialogResult.OK)
+                    if (rs == DialogResult.Yes)
                     {
                         //建立新的会话
                         int l = ChatID.Length / 10;
@@ -571,7 +573,7 @@ namespace Chat_Room
                     DialogResult rs = MessageBox.Show(
                         theFrd.Name + "邀请您加入群聊：" + Gname, "会话请求"
                         , MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (rs == DialogResult.OK)
+                    if (rs == DialogResult.Yes)
                     {
                         //建立新的会话
                         int l = ChatID.Length / 10;
@@ -708,7 +710,7 @@ namespace Chat_Room
                 {
                     int length = 0;
                     string Recv = "";
-                    if (link == null) return;
+                    if (link == null||!link.Connected) return;
                     try
                     {
                         length = link.EndReceive(asyncResult);
@@ -722,6 +724,7 @@ namespace Chat_Room
                         MessageBox.Show("信息接收错误，和" + link.RemoteEndPoint.ToString() + " 连接中断", "信息提示",
                                                 MessageBoxButtons.OK, MessageBoxIcon.Information);
                         link.Close();
+                        theFrd.link = null;
                         theFrd.online = false;
                     }
                     if (length == 0)
@@ -732,6 +735,7 @@ namespace Chat_Room
                         theFrd.online = false;
                         listViewUpdate();   //会自动判断有该frd的Chat下线
                         theFrd.link.Close();
+                        theFrd.link = null;
                         return;
                     }
                     if (Message.check(Recv))
@@ -774,6 +778,7 @@ namespace Chat_Room
                                         string msg = Message.RFS + userID;
                                         SendMsg2(msg, theFrd.link);
                                         link.Close();
+                                        theFrd.link = null;
                                         if (rs == DialogResult.No)
                                         {
                                             //拒绝聊天——加入黑名单
@@ -955,7 +960,7 @@ namespace Chat_Room
                                             msgShow += theFrd.Name + " 拒绝了您的会话";
                                             MessageBox.Show(msgShow);
                                         }
-                                        theFrd.link.Close(); theFrd.online = false;
+                                        theFrd.link.Close(); theFrd.online = false;theFrd.link = null;
                                         break;
                                     }
                                 default:
