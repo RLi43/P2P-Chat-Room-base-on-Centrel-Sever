@@ -713,6 +713,7 @@ namespace Chat_Room
                 {
                     int length = 0;
                     string Recv = "";
+                    if (link == null) return;
                     try
                     {
                         length = link.EndReceive(asyncResult);
