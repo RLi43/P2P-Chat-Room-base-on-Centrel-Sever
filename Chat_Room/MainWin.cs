@@ -1363,7 +1363,7 @@ namespace Chat_Room
                 sorted.Sort();
 
                 bool allon = friends[0].online;
-                for (int i = 1; i < memNum; i++)
+                for (int i = 0; i < memNum; i++)
                 {
                     if (!friends[i].online) allon = false;
                     ID += sorted[i];
