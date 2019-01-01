@@ -1046,7 +1046,6 @@ namespace Chat_Room
         private delegate void RichBox_Show(List<chatData> cd);
         public void DrawChatOutput(List<chatData> cd)
         {
-            cd.Sort();
             HorizontalAlignment ha;
             for(int i = 0; i < cd.Count; i++)
             {
