@@ -758,7 +758,6 @@ namespace Chat_Room
                                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                         theFrd.online = false;
                         listViewUpdate();   //会自动判断有该frd的Chat下线
-                        theFrd.link.Close();
                         theFrd.link = null;
                         return;
                     }
