@@ -939,7 +939,6 @@ namespace Chat_Room
             //非单人
             if (selected.Count != 1)
             {
-                //或者直接触发“发起群聊”
                 return;
             }
             if (selected[0].SubItems[2].Text == userID) return;//或者本机聊天？
@@ -947,35 +946,32 @@ namespace Chat_Room
             string destID = selected[0].SubItems[2].Text;
             int destInd = Chats.FindIndex(x => x.ID == destID);
             Chat theChat = Chats[destInd];
-            Friend theFrd = theChat.friends[0];
 
             if (theChat.state < Chat.CHATSTATE.LINK)
             {
                 //发起连接请求                
-                string conMsg = Message.CON + userID + "0";
-                Socket p2ps = null;
-                try
+                string conMsg = Message.CON + userID;
+                if (theChat.isGroup)
                 {
-                    p2ps = connect2other(destID, conMsg);
+                    string len = theChat.memNum.ToString();
+                    while (len.Length < 2) len = "0" + len;
+                    conMsg += "1" + len + theChat.ID + theChat.Name;
                 }
-                catch (Exception ex)
+                else conMsg += "0";
+                foreach (Friend fd in theChat.friends)
                 {
-                    Console.WriteLine(ex);
-                    MessageBox.Show("连接失败😔", "发生错误",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                if (p2ps == null)//应该到不了这里
-                {
-                    MessageBox.Show("连接失败😔", "发生错误2",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                else
-                {
-                    //连接成功  
-                    theFrd.link = p2ps;
-                    FrdAsynRecive(theFrd);
+                    try
+                    {
+                        Socket p2p = connect2other(fd.ID, conMsg);
+                        FrdAsynRecive(fd);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                        MessageBox.Show("连接失败😔", "发生错误",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
                 }
             }
             //将该对话置为聊天框
@@ -988,16 +984,17 @@ namespace Chat_Room
         void switchChat2(Chat theChat)
         {
             int count = 0;
-            foreach (Chat c in Chats)  
+            foreach (Chat c in Chats)
                 if (c.state == Chat.CHATSTATE.ONCHAT) count++;
-            if (count == 1&&theChat.state==Chat.CHATSTATE.ONCHAT) return;
+            if (count == 1 && theChat.state == Chat.CHATSTATE.ONCHAT) return;
 
             ChatListClear();
             addChatList(theChat.Datas);
 
-            foreach (Chat c in Chats)   //清除正在聊天
-                if (c.state == Chat.CHATSTATE.ONCHAT)
-                    c.state = Chat.CHATSTATE.LINK;
+            if (count > 1)
+                foreach (Chat c in Chats)   //清除正在聊天
+                    if (c.state == Chat.CHATSTATE.ONCHAT)
+                        c.state = Chat.CHATSTATE.LINK;
             theChat.state = Chat.CHATSTATE.ONCHAT;
 
             if (label_RoomName.InvokeRequired)
