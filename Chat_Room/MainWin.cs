@@ -999,8 +999,7 @@ namespace Chat_Room
 
             ChatListClear();
             addChatList(theChat.Datas);
-
-            if (count > 1)
+            
                 foreach (Chat c in Chats)   //清除正在聊天
                     if (c.state == Chat.CHATSTATE.ONCHAT)
                         c.state = Chat.CHATSTATE.LINK;
