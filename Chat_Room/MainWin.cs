@@ -524,6 +524,7 @@ namespace Chat_Room
                                     if (Frds[i].link == null)
                                     {
                                         Frds[i].link = connect2other(idname, conMsg);
+                                        Frds[i].online = true;
                                         FrdAsynRecive(Frds[i]);
                                     }
                                     break;
@@ -606,6 +607,7 @@ namespace Chat_Room
                                     {
                                         Frds[i].link = connect2other(idname, conMsg);
                                         FrdAsynRecive(Frds[i]);
+                                        Frds[i].online = true;
                                     }
                                     break;
                                 }
@@ -671,6 +673,7 @@ namespace Chat_Room
                                     {
                                         fd.link = connect2other(fd.ID, conMsg);
                                         FrdAsynRecive(fd);
+                                        fd.online = true;
                                     }
                                     catch (Exception ex)
                                     {
@@ -967,6 +970,7 @@ namespace Chat_Room
                     try
                     {
                         Socket p2p = connect2other(fd.ID, conMsg);
+                        fd.online = true;
                         fd.link = p2p;
                         FrdAsynRecive(fd);
                     }
@@ -1096,14 +1100,20 @@ namespace Chat_Room
                             try
                             {
                                 Gfrds[i].link = connect2other(Gfrds[i].ID, conMsg);
+                                Gfrds[i].online = true;
                                 FrdAsynRecive(Gfrds[i].link);
-                            }catch(Exception ex)
+                            }
+                            catch (Exception ex)
                             {
                                 Console.WriteLine(ex);
-                                MessageBox.Show("与"+Gfrds[i].ID+"的连接不成功", "连接失败",
+                                MessageBox.Show("与" + Gfrds[i].ID + "的连接不成功", "连接失败",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
+                        }
+                        else
+                        {
+                            SendMsg2(conMsg, Gfrds[i].link);
                         }
                     }
                     Chats.Add(newGp);
