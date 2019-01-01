@@ -626,9 +626,9 @@ namespace Chat_Room
                             Console.WriteLine(ex.ToString());
                             theChat.state = Chat.CHATSTATE.OFFLINE;
                             MessageBox.Show("信息接收错误，和" + theChat.Name + " 连接中断", "信息提示",
-                                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            //TODO 关闭线程
+                                                    MessageBoxButtons.OK, MessageBoxIcon.Information);                            
                             link.Close();
+                            ChatListClear();
                         }
                         if (length == 0)
                         {
@@ -886,20 +886,7 @@ namespace Chat_Room
                 if (c.state == Chat.CHATSTATE.ONCHAT) count++;
             if (count == 1&&theChat.state==Chat.CHATSTATE.ONCHAT) return;
 
-            //清除聊天框
-            while (outputBoxWritting) { };
-            outputBoxWritting = true;
-            if (richTextBox_output.InvokeRequired)
-            {
-                // 当一个控件的InvokeRequired属性值为真时，说明有一个创建它以外的线程想访问它
-                Action actionDelegate = () => { richTextBox_output.Clear(); };
-                this.richTextBox_output.Invoke(actionDelegate);
-            }
-            else
-            {
-                richTextBox_output.Clear();
-            }
-            outputBoxWritting = false;  //恢复不被占用
+            ChatListClear();
             addChatList(theChat.Datas);
 
             foreach (Chat c in Chats)   //清除正在聊天
@@ -972,10 +959,11 @@ namespace Chat_Room
                 sorted.Add(Gfrds[i].ID);
             }
             sorted.Sort();
-            for (int i = 1; i < n; i++)
+            for (int i = 0; i < n; i++)
             {
                 GID += sorted[i];
             }
+            Console.WriteLine("GroupID "+GID);
             int theind = Chats.FindIndex(x => x.ID == GID);
             if (theind == -1)
             {
@@ -1044,6 +1032,23 @@ namespace Chat_Room
             outputBoxWritting = false;  //恢复不被占用
         }
         private delegate void RichBox_Show(List<chatData> cd);
+        void ChatListClear()
+        {
+            //清除聊天框
+            while (outputBoxWritting) { };
+            outputBoxWritting = true;
+            if (richTextBox_output.InvokeRequired)
+            {
+                // 当一个控件的InvokeRequired属性值为真时，说明有一个创建它以外的线程想访问它
+                Action actionDelegate = () => { richTextBox_output.Clear(); };
+                this.richTextBox_output.Invoke(actionDelegate);
+            }
+            else
+            {
+                richTextBox_output.Clear();
+            }
+            outputBoxWritting = false;  //恢复不被占用
+        }
         public void DrawChatOutput(List<chatData> cd)
         {
             HorizontalAlignment ha;
