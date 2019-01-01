@@ -1428,7 +1428,12 @@ namespace Chat_Room
                         }
                     case CHATSTATE.ONLINE:
                         {
-                            bkcl = Color.Gold;
+                            bkcl = Color.LightPink;
+                            break;
+                        }
+                    case CHATSTATE.LINK:
+                        {
+                            bkcl = Color.LightSkyBlue;
                             break;
                         }
                     case CHATSTATE.NEWS:
