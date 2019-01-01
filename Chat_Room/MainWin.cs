@@ -63,14 +63,19 @@ namespace Chat_Room
         }
         #region CS
         //发送字符信息到指定socket 
-        public static void SendMsg2(string sendMsg, Socket send2)
+        public static bool SendMsg2(string sendMsg, Socket send2)
         {
-            //将输入的内容字符串转换为机器可以识别的字节数组     
-            byte[] arrClientSendMsg = Encoding.UTF8.GetBytes(sendMsg);
-            //调用客户端套接字发送字节数组     
-            send2.Send(arrClientSendMsg);
-            if(sendMsg.Length<50)
-                Console.WriteLine("Send to " + send2.RemoteEndPoint.ToString() + ": " + sendMsg);
+            if (send2.Connected)
+            {
+                //将输入的内容字符串转换为机器可以识别的字节数组     
+                byte[] arrClientSendMsg = Encoding.UTF8.GetBytes(sendMsg);
+                //调用客户端套接字发送字节数组     
+                send2.Send(arrClientSendMsg);
+                if (sendMsg.Length < 50)
+                    Console.WriteLine("Send to " + send2.RemoteEndPoint.ToString() + ": " + sendMsg);
+                return true;
+            }
+            else return false;
         }
         string receiveFromSever(int size = 1024)
         {
@@ -1200,15 +1205,20 @@ namespace Chat_Room
                     //Socket[] p2ps = new Socket[n];
                     for(int i = 0; i < n; i++)
                     {
-                        if (Gfrds[i].link == null)
-                        {
                             //给未建立连接的好友建立连接
                             try
                             {
+                        if (Gfrds[i].link == null)
+                        {
                                 Gfrds[i].link = connect2other(Gfrds[i].ID, conMsg);
                                 Gfrds[i].online = true;
                                 FrdAsynRecive(Gfrds[i].link);
-                            }
+                            
+                        }
+                        else
+                        {
+                            SendMsg2(conMsg, Gfrds[i].link);
+                        }}
                             catch (Exception ex)
                             {
                                 Console.WriteLine(ex);
@@ -1216,11 +1226,6 @@ namespace Chat_Room
                                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
-                        }
-                        else
-                        {
-                            SendMsg2(conMsg, Gfrds[i].link);
-                        }
                     }
                     Chats.Add(newGp);
                     listViewUpdate();
@@ -1415,10 +1420,16 @@ namespace Chat_Room
                 msg += le + theChat.ID;
             }
             else msg += '0';
-
-            for (int i = 0; i < theChat.memNum; i++)
+            try
             {
-                SendMsg2(msg, theChat.friends[i].link);
+                for (int i = 0; i < theChat.memNum; i++)
+                {
+                    SendMsg2(msg, theChat.friends[i].link);
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
             }
         }
         private delegate void Shake();
@@ -1507,7 +1518,7 @@ namespace Chat_Room
             msg += fileName + "-" +fileLength;
             for(int i = 0; i < theChat.memNum; i++)
             {
-                if (theChat.friends[i].link != null)
+                if (theChat.friends[i].link != null&&theChat.friends[i].link.Connected)
                 {
                     SendMsg2(msg, theChat.friends[i].link);
                     byte[] buffer = new byte[1000000];
@@ -1712,7 +1723,7 @@ namespace Chat_Room
                 Name = _Name;
                 link = _link;
                 IP_udtime = DateTime.Now;
-                if (link != null)
+                if (link != null&&link.Connected)
                 {
                     IP = ((System.Net.IPEndPoint)link.RemoteEndPoint).Address.ToString();
                 }
