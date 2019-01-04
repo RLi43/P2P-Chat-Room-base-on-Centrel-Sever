@@ -732,9 +732,9 @@ namespace Chat_Room
                 link.BeginReceive(data, 0, data.Length, SocketFlags.None,
                 asyncResult =>
                 {
-                    int length = 0;
                     string Recv = "";
                     if (link == null||!link.Connected) return;
+                    int length = 0;
                     try
                     {
                         length = link.EndReceive(asyncResult);
