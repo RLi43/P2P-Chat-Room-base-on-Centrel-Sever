@@ -21,7 +21,6 @@ C:\Users\lenovo\Desktop\jwdzy\P2P-Chat-Room-base-on-Centrel-Sever\Chat_Room\obj\
 C:\Users\lenovo\Desktop\jwdzy\P2P-Chat-Room-base-on-Centrel-Sever\Chat_Room\obj\Debug\Chat_Room.csproj.GenerateResource.Cache
 C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.Progress.resources
 C:\Users\lenovo\Desktop\jwdzy\P2P-Chat-Room-base-on-Centrel-Sever\Chat_Room\obj\Debug\Chat_Room.Progress.resources
-C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\bin\Debug\Chat_Room.exe.CodeAnalysisLog.xml
-C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\bin\Debug\Chat_Room.exe.lastcodeanalysissucceeded
 C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.csprojAssemblyReference.cache
 C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.csproj.CoreCompileInputs.cache
+C:\Users\Robot.Li\Desktop\计网\dzy1\Chat_Room\Chat_Room\obj\Debug\Chat_Room.ChatRecords.resources
