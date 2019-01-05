@@ -484,6 +484,7 @@ namespace Chat_Room
                     theFrd.link.Dispose();
                 }
                 theFrd.link = clientSocket;
+                UpdateChats();
                 //老朋友默认通过了
                 FrdAsynRecive(theFrd);
                 if (!isnewChat)
@@ -538,7 +539,7 @@ namespace Chat_Room
                 else //群聊
                 {
                     string promptMsg = "来自群聊：" + Gname+ "的"+remoteID+"的连接请求";
-                    if (isnewFrd) promptMsg = "新的朋友！/r/n " + promptMsg;
+                    if (isnewFrd) promptMsg = "新的朋友！\r\n " + promptMsg;
                     DialogResult rs = MessageBox.Show(promptMsg, "会话请求"
                         , MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (rs == DialogResult.Yes)
@@ -569,7 +570,11 @@ namespace Chat_Room
                                 Gfrd = new Friend("", true, idname, idname, null);
                             }
                             else Gfrd = Frds[ind];
-                            if (Gfrd == user) continue;
+                            if (Gfrd == user)
+                            {
+                                newFrds.Add(user); continue;
+                            }
+                            newFrds.Add(Gfrd);
                             if (Gfrd.link == null && need2con)
                             {
                                 //给未连接的对象进行连接
@@ -587,7 +592,6 @@ namespace Chat_Room
                                     continue;
                                 }
                             }
-                            newFrds.Add(Gfrd);
                         }                            
                         //建立会话
                         theChat = new Chat(newFrds, Gname);
@@ -599,7 +603,6 @@ namespace Chat_Room
                     }
                 }
                 Chats.Add(theChat);
-                theChat.state = Chat.CHATSTATE.LINK;
                 switchChat2(theChat);
                 ChatsUsing = false;
                 return;
@@ -681,7 +684,6 @@ namespace Chat_Room
                         Chat theChat;
                         if (chid == -1)
                         {
-                            ChatsUsing = true;
                             if (Recv.Substring(0, 3) == Message.CON)
                             {
                                 //建立新的会话
@@ -723,8 +725,6 @@ namespace Chat_Room
                                         //建立新的会话
                                         int l = ChatID.Length / 10;
                                         List<Friend> newFrds = new List<Friend>();
-                                        newFrds.Add(user);
-                                        newFrds.Add(theFrd);
                                         bool need2con = false;
                                         string conMsg = Message.CON + user.ID + "1" + Recv.Substring(14);
                                         //为新成员建立Friend类
@@ -734,9 +734,12 @@ namespace Chat_Room
                                             if (idname == user.ID)
                                             {
                                                 need2con = true;
+                                                newFrds.Add(user);
                                                 continue;
                                             }
-                                                if(idname == theFrd.ID) continue;
+                                            if (idname == theFrd.ID) {
+                                                newFrds.Add(theFrd);
+                                                continue; }
                                             //新的好友？
                                             int fdin = Frds.FindIndex(x => x.ID == idname);
                                             Friend Gfrd;
@@ -806,8 +809,8 @@ namespace Chat_Room
                                     }
                                 case Message.MSG:
                                     {
-                                        //务必先取得连接之后才能对话
-                                        if (theChat.state > Chat.CHATSTATE.ONLINE)
+                                        // //务必先取得连接之后才能对话
+                                        //if (theChat.state > Chat.CHATSTATE.ONLINE)
                                         {
                                             System.Media.SystemSounds.Beep.Play();
                                             int startInd = 18;
@@ -835,7 +838,7 @@ namespace Chat_Room
                                                 UpdateChats();
                                             }
                                         }
-                                        else
+                                        //else
                                         {//未确认方发送的连接 
                                         }
                                         break;
@@ -1074,6 +1077,10 @@ namespace Chat_Room
             {
                 int ind = Frds.FindIndex(x => x.ID == item.SubItems[2].Text);
                 Gfrds.Add(Frds[ind]);
+                if (!Frds[ind].linked)
+                {
+                    MessageBox.Show("内测中，暂不支持与未连接的好友的发起群聊","You may never see it done");
+                }
             }
             if (!Gfrds.Contains(user)) { Gfrds.Insert(0,user); } ;//用户是第一个
             for (int i = 0; i < Gfrds.Count; i++)
@@ -1105,6 +1112,7 @@ namespace Chat_Room
                                 Gfrds[i].link = connect2other(Gfrds[i].ID, conMsg);
                                 Gfrds[i].online = true;
                                 FrdAsynRecive(Gfrds[i]);
+                                continue;
                             }
                                 SendMsg2(conMsg, Gfrds[i].link);
                         }
@@ -1269,7 +1277,7 @@ namespace Chat_Room
                     MessageBox.Show(fd.ID+"连接已关闭", "发送失败",
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     theChat.state = Chat.CHATSTATE.OFFLINE;
-                    updateState();
+                    UpdateChats();
                     return;
                 }
             }
