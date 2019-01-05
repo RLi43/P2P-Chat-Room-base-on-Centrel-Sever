@@ -19,20 +19,19 @@ namespace Chat_Room
     public partial class MainWin : Form
     {
         static Socket SocketToSever = null;
-        Friend user;
-        public string userID;                   //用户ID
-        IPAddress userIP;
-        List<Chat> Chats = new List<Chat>();
-        List<Friend> Frds = new List<Friend>();
-        List<string> BlackList = new List<string>();
-        List<Socket> ConnectedLinks = new List<Socket>();
-        int localPort;
+        Friend user;                                //用户
+        List<Chat> Chats = new List<Chat>();        //会话
+        List<Friend> Frds = new List<Friend>();     //通讯录
+        List<string> BlackList = new List<string>();//黑名单ID
+        //删掉
+        List<Socket> ConnectedLinks = new List<Socket>();   //所有Socket
+        int localPort;                              //本地大门端口
         public MainWin()
         {
             InitializeComponent();
-            load();
+            MainLoad();
         }
-        public void load()
+        public void MainLoad()
         {
             Frds.Clear();
             listView1.Items.Clear();
@@ -47,21 +46,58 @@ namespace Chat_Room
                 if (log.exit) System.Environment.Exit(0);
             }
             Visible = true;
-            userID = log.userID;
+            //---增加本人为好友---
+            user = new Friend("", true, log.userID, "我", null);
+            Frds.Add(user);
+            
             SocketToSever = Login.SocketClient;
-            localPort = int.Parse(userID.Substring(userID.Length - 5)) + 2000;
+            localPort = int.Parse(user.ID.Substring(user.ID.Length - 5)) + 2000;
 
             StartListening();
             outputBoxWritting = false;
-            //---增加本人为好友---
-            user = new Friend("", true, userID, "我", null);
-            Frds.Add(user);
             //显示对话
             Chat newchat = new Chat(user);
             Chats.Add(newchat);
-            listViewUpdate();
+            UpdateChats();
         }
-        #region CS
+        #region 通信辅助函数
+        bool IsIP(string str)
+        {
+            try
+            {
+                IPAddress.Parse(str);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        //获取本机地址        //https://www.cnblogs.com/iack/p/3685680.html
+        public static IPAddress GetLocalIP()
+        {
+            try
+            {
+                string HostName = Dns.GetHostName(); //得到主机名
+                IPHostEntry IpEntry = Dns.GetHostEntry(HostName);
+                for (int i = 0; i < IpEntry.AddressList.Length; i++)
+                {
+                    //从IP地址列表中筛选出IPv4类型的IP地址
+                    //AddressFamily.InterNetwork表示此IP为IPv4,
+                    //AddressFamily.InterNetworkV6表示此地址为IPv6类型
+                    if (IpEntry.AddressList[i].AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        return IpEntry.AddressList[i];
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("获取本机IP出错:" + ex.Message);
+                return null;
+            }
+        }
         //发送字符信息到指定socket 
         public static bool SendMsg2(string sendMsg, Socket send2)
         {
@@ -77,7 +113,8 @@ namespace Chat_Room
             }
             else return false;
         }
-        string receiveFromSever(int size = 1024)
+        //接收服务器信息
+        string ReceiveFromSever(int size = 1024)
         {
             byte[] arrRecvmsg = new byte[size];  //内存缓冲区，临时性存储接收到的消息 
                                                  //将客户端套接字接收到的数据存入内存缓冲区，并获取长度  
@@ -89,15 +126,16 @@ namespace Chat_Room
                 //TODO test
                 SocketToSever.Close();
                 MessageBox.Show("与服务器连接中断", "!", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                load();
+                MainLoad();
                 return null;
             }
             Console.WriteLine(rev);
             return rev;
         }
         #endregion
-        #region 本机服务
+        #region 本机服务 - 左侧界面
         //UI相关
+        //--搜索提示
         bool find_text_empty = true;
         private void textBox_find_Click(object sender, EventArgs e)
         {
@@ -118,8 +156,30 @@ namespace Chat_Room
             else find_text_empty = false;
             AcceptButton = null;
         }
+        
+        //绘制会话表
+        bool listviewUsing = false;
+        private delegate void UpdateChatsList(List<Chat> cs);
+        void DrawChatsList(List<Chat> cs)
+        {
+            listView1.Items.Clear();
+            foreach (Chat c in Chats)
+            {
+                listView1.Items.Add(c.setItem());
+            }
+        }
+        void UpdateChats()
+        {
+            //更新会话列表
+            while (listviewUsing) { };
+            listviewUsing = true;   //占用之
+            UpdateChatsList cl = new UpdateChatsList(DrawChatsList);
+            this.Invoke(cl, new object[] { Chats });
+            listviewUsing = false;  //恢复不被占用
 
-        //退出&下线
+        }
+
+        //--退出&下线
         private void MainWin_FormClosing(object sender, FormClosingEventArgs e)
         {
             DialogResult result = MessageBox.Show("确认退出？", "操作提示",
@@ -135,8 +195,8 @@ namespace Chat_Room
                         fd.online = false;
                     }
                 }
-                SendMsg2("logout" + userID, SocketToSever);
-                string strRevMsg = receiveFromSever();
+                SendMsg2("logout" + user.ID, SocketToSever);
+                string strRevMsg = ReceiveFromSever();
                 if (strRevMsg == "loo")
                 {
                     MessageBox.Show("下线成功！", "Goodbye",
@@ -154,113 +214,6 @@ namespace Chat_Room
                 e.Cancel = true;
             }
         }
-
-        //--查询好友--
-        string friendsQuery(string IDnum)
-        {
-            SendMsg2('q' + IDnum, SocketToSever);
-            return receiveFromSever();
-        }
-        bool isIP(string str)
-        {
-            try
-            {
-                IPAddress.Parse(str);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-        private void button_find_Click(object sender, EventArgs e)
-        {
-            string idname = textBox_find.Text;
-            if (idname == userID)
-            {
-                MessageBox.Show("嘟嘟嘟……\r\n打通了自己的电话", "自问自答",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
-                for (int i = 0; i < Frds.Count; i++)
-                {
-                    if (Frds[i].ID == userID)
-                    {
-                        return;
-                    }
-                }
-                //把自己删掉了？
-                Friend newfrd = new Friend(friendsQuery(userID), true, userID, userID, null);
-                Frds.Add(newfrd);
-                Chat newchat = new Chat(newfrd);
-                listViewUpdate();
-                return;
-            }
-            string result = friendsQuery(idname);
-            if ("n" != result && !isIP(result))
-            {
-                MessageBox.Show("您拨打的电话是空号", "出错啦",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Console.WriteLine(result);
-            }
-            else
-            {
-                bool state = false;
-                if ("n" == result)
-                {
-                    MessageBox.Show("您拨打的电话不在服务器，请稍后再试", "信息提示",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    //好友在线
-                    state = true;
-                    MessageBox.Show("好友电话是：" + result, "信息提示",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                bool isnew = true;
-                //新的好友？
-                for (int i = 0; i < Frds.Count; i++)
-                {
-                    if (idname == Frds[i].ID)
-                    {
-                        //考虑直接开启对话？
-                        MessageBox.Show("该好友可以通过通讯录找到哦", "信息提示",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        isnew = false;
-                        Frds[i].IP = result;
-                        Frds[i].online = state;
-                        //TODO: renew ChatList
-                        break;
-                    }
-                }
-                //新的好友 
-                if (isnew)
-                {
-                    Friend newfrd = new Friend(friendsQuery(idname), state, idname, idname, null);
-                    Frds.Add(newfrd);
-                    Chat newchat = new Chat(newfrd);
-                    Chats.Add(newchat);
-                }
-                listViewUpdate();
-            }
-        }//轮询好友
-        //可能需要考虑占用的问题
-        void updateState()
-        {
-            foreach (ListViewItem item in listView1.Items)
-            {
-                string result = friendsQuery(item.SubItems[2].Text);
-                if (result == "n")
-                {
-                    item.SubItems[1].Text = "";
-                }
-                else
-                {
-                    item.SubItems[1].Text = "嗯";
-                }
-            }
-        }
-        //--end of 查询好友--
-
         //--信息操作---
         //修改昵称
         private void button_chgName_Click(object sender, EventArgs e)
@@ -291,7 +244,8 @@ namespace Chat_Room
                     }
                 }
                 theChat.Name = inp.Value;
-                if (!theChat.isGroup) {
+                if (!theChat.isGroup)
+                {
                     theChat.friends[0].Name = inp.Value;
                 }
             }
@@ -333,41 +287,110 @@ namespace Chat_Room
                 }
             }
         }
-        //--end of 信息操作---
-        #endregion
-        #region 接受链接
-        //获取本机地址
-        //https://www.cnblogs.com/iack/p/3685680.html
-        public static IPAddress GetLocalIP()
+        
+        #region 服务器
+        //--查询好友--
+        string FriendsQuery(string IDnum)
         {
-            try
+            SendMsg2('q' + IDnum, SocketToSever);
+            return ReceiveFromSever();
+        }
+        #endregion
+        private void button_find_Click(object sender, EventArgs e)
+        {
+            string idname = textBox_find.Text;
+            if (idname == user.ID)
             {
-                string HostName = Dns.GetHostName(); //得到主机名
-                IPHostEntry IpEntry = Dns.GetHostEntry(HostName);
-                for (int i = 0; i < IpEntry.AddressList.Length; i++)
+                MessageBox.Show("嘟嘟嘟……\r\n打通了自己的电话", "自问自答",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                for (int i = 0; i < Frds.Count; i++)
                 {
-                    //从IP地址列表中筛选出IPv4类型的IP地址
-                    //AddressFamily.InterNetwork表示此IP为IPv4,
-                    //AddressFamily.InterNetworkV6表示此地址为IPv6类型
-                    if (IpEntry.AddressList[i].AddressFamily == AddressFamily.InterNetwork)
+                    if (Frds[i].ID == user.ID)
                     {
-                        return IpEntry.AddressList[i];
+                        return;
                     }
                 }
-                return null;
+                //把自己删掉了？
+                Friend newfrd = new Friend(FriendsQuery(user.ID), true, user.ID, "我", null);
+                Frds.Add(newfrd);
+                Chat newchat = new Chat(newfrd);
+                UpdateChats();
+                return;
             }
-            catch (Exception ex)
+            string result = FriendsQuery(idname);
+            if ("n" != result && !IsIP(result))
             {
-                MessageBox.Show("获取本机IP出错:" + ex.Message);
-                return null;
+                MessageBox.Show("您拨打的电话是空号", "出错啦",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(result);
+            }
+            else
+            {
+                bool state = false;
+                if ("n" == result)
+                {
+                    MessageBox.Show("您拨打的电话不在服务器，请稍后再试", "信息提示",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    //好友在线
+                    state = true;
+                    MessageBox.Show("好友电话是：" + result, "信息提示",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                bool isnew = true;
+                //新的好友？
+                for (int i = 0; i < Frds.Count; i++)
+                {
+                    if (idname == Frds[i].ID)
+                    {
+                        //考虑直接开启对话？
+                        MessageBox.Show("该好友可以通过通讯录找到哦", "信息提示",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        isnew = false;
+                        Frds[i].IP = result;
+                        Frds[i].online = state;
+                        //TODO: renew ChatList
+                        break;
+                    }
+                }
+                //新的好友 
+                if (isnew)
+                {
+                    Friend newfrd = new Friend(FriendsQuery(idname), state, idname, idname, null);
+                    Frds.Add(newfrd);
+                    Chat newchat = new Chat(newfrd);
+                    Chats.Add(newchat);
+                }
+                UpdateChats();
+            }
+        }//轮询好友
+        //定时更新？可能需要考虑占用的问题
+        void updateState()
+        {
+            foreach (ListViewItem item in listView1.Items)
+            {
+                string result = FriendsQuery(item.SubItems[2].Text);
+                if (result == "n")
+                {
+                    item.SubItems[1].Text = "";
+                }
+                else
+                {
+                    item.SubItems[1].Text = "嗯";
+                }
             }
         }
-        //TCP Socket异步接受监听
+        #endregion
+        #region 接受链接
+        //TCP Socket - 大门 异步接受监听
         //https://blog.csdn.net/weixin_40271181/article/details/78981701
         //https://blog.csdn.net/mss359681091/article/details/51790931
         public void StartListening()
         {
-            userIP = GetLocalIP();
+            IPAddress userIP = GetLocalIP();
+            user.IP = userIP.ToString();
             IPEndPoint serverEp = new IPEndPoint(userIP, localPort);
             Socket serverSocket = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);   //监听服务器
@@ -417,22 +440,10 @@ namespace Chat_Room
                                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-                
-        //根据接收到的信息操作
-        private delegate void UpdateChatList(List<Chat> cs);
-        void DrawChatList(List<Chat> cs)
-        {
-            listView1.Items.Clear();
-            foreach (Chat c in Chats)
-            {
-                listView1.Items.Add(c.setItem());
-            }
-        }
-        bool listviewUsing = false;
-        //大门
+        //大门信息处理
         public void GateMsgTrans(string Recv, Socket clientSocket)
         {
-            
+
             //message 检查
 
             string type = Recv.Substring(0, 3);
@@ -444,14 +455,14 @@ namespace Chat_Room
             if (BlackList.Contains(remoteID)) return;
             string Gname = "";
 
-            string conMsg = Message.CON + userID + "1" + Recv.Substring(14);//因为单独聊天不需要再次发送
+            string conMsg = Message.CON + user.ID + "1" + Recv.Substring(14);//因为单独聊天不需要再次发送
             if (!isSingle)
             {
                 int length = int.Parse(Recv.Substring(14, 2)) * 10;
                 ChatID = Recv.Substring(16, length);
                 Gname = Recv.Substring(16 + length);
             }
-            Friend theFrd=null;
+            Friend theFrd = null;
             int fdind = Frds.FindIndex(x => x.ID == remoteID);
             int chind = Chats.FindIndex(x => x.ID == ChatID);
             if (fdind == -1)
@@ -480,7 +491,7 @@ namespace Chat_Room
                         else
                         {
                             //中断本次对话 不回应
-                            string msg = Message.RFS + userID;
+                            string msg = Message.RFS + user.ID;
                             SendMsg2(msg, clientSocket);
                             clientSocket.Close();
                             theFrd.link = null;
@@ -506,7 +517,7 @@ namespace Chat_Room
                             for (int j = 0; j < l; j++)
                             {
                                 string idname = ChatID.Substring(j * 10, 10);
-                                if (idname == userID) continue;
+                                if (idname == user.ID) continue;
                                 //新的好友？
                                 bool isnew = true;
                                 for (int i = 0; i < Frds.Count; i++)
@@ -516,8 +527,8 @@ namespace Chat_Room
                                     {
                                         newFrds.Add(Frds[i]);
                                         isnew = false;
-                                        string ip = friendsQuery(idname);
-                                        if (!isIP(ip))
+                                        string ip = FriendsQuery(idname);
+                                        if (!IsIP(ip))
                                         {
                                             //Console.WriteLine("发生错误： " + idname + " 不在线");
                                             MessageBox.Show("发生错误： " + idname + " 不在线");
@@ -536,7 +547,8 @@ namespace Chat_Room
                                             Frds[i].link = connect2other(idname, conMsg);
                                             Frds[i].online = true;
                                             FrdAsynRecive(Frds[i]);
-                                        }else if (!Frds[i].link.Connected)
+                                        }
+                                        else if (!Frds[i].link.Connected)
                                         {
                                             Frds[i].link = connect2other(idname, conMsg);
                                             Frds[i].online = true;
@@ -560,7 +572,7 @@ namespace Chat_Room
                             Chats.Add(newchat);
                             theChat = newchat;
                             //theChat.state = Chat.CHATSTATE.ONCHAT;
-                            listViewUpdate();
+                            UpdateChats();
                         }
                         else
                         {//拒绝加入
@@ -568,12 +580,13 @@ namespace Chat_Room
                         }
                     }
                     //似乎这里不需要重绘了
-                    listViewUpdate();
+                    UpdateChats();
                     switchChat2(theChat);
-                }else
+                }
+                else
                 {
                     //新朋友 旧对话
-                    Console.WriteLine("新朋友，旧对话，错误");                    
+                    Console.WriteLine("新朋友，旧对话，错误");
                     //收链接就行
                     if (isSingle)
                     {
@@ -604,7 +617,7 @@ namespace Chat_Room
                         for (int j = 0; j < l; j++)
                         {
                             string idname = ChatID.Substring(j * 10, 10);
-                            if (idname == userID) continue;
+                            if (idname == user.ID) continue;
                             //新的好友？
                             bool isnew = true;
                             for (int i = 0; i < Frds.Count; i++)
@@ -614,8 +627,8 @@ namespace Chat_Room
                                 {
                                     newFrds.Add(Frds[i]);
                                     isnew = false;
-                                    string ip = friendsQuery(idname);
-                                    if (!isIP(ip))
+                                    string ip = FriendsQuery(idname);
+                                    if (!IsIP(ip))
                                     {
                                         MessageBox.Show("发生错误： " + idname + " 不在线");
                                         return;
@@ -652,7 +665,7 @@ namespace Chat_Room
                         //建立会话
                         Chat newchat = new Chat(newFrds, Gname);
                         Chats.Add(newchat);
-                        listViewUpdate();
+                        UpdateChats();
                         switchChat2(newchat);
                     }
                     else
@@ -708,7 +721,7 @@ namespace Chat_Room
                     //            }
                     //        }
                     //    }
-                    if(theChat.state<Chat.CHATSTATE.LINK)theChat.state = Chat.CHATSTATE.LINK;
+                    if (theChat.state < Chat.CHATSTATE.LINK) theChat.state = Chat.CHATSTATE.LINK;
                     //}
                 }
             }
@@ -720,6 +733,8 @@ namespace Chat_Room
             ////启动线程     
             //thread.Start(theFrd);
         }
+        #endregion
+        #region 已连接 信息接收操作
         //对话监听
         void FrdAsynRecive(object obj)
         {
@@ -757,7 +772,7 @@ namespace Chat_Room
                             MessageBox.Show("好友" + theFrd.Name + "退出了会话", "信息提示",
                                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                         theFrd.online = false;
-                        listViewUpdate();   //会自动判断有该frd的Chat下线
+                        UpdateChats();   //会自动判断有该frd的Chat下线
                         theFrd.link = null;
                         return;
                     }
@@ -793,12 +808,12 @@ namespace Chat_Room
                                         //显示对话
                                         newchat = new Chat(theFrd);
                                         Chats.Add(newchat);
-                                        listViewUpdate();
+                                        UpdateChats();
                                     }
                                     else
                                     {
                                         //中断本次对话 不回应
-                                        string msg = Message.RFS + userID;
+                                        string msg = Message.RFS + user.ID;
                                         SendMsg2(msg, theFrd.link);
                                         link.Close();
                                         theFrd.link = null;
@@ -820,12 +835,12 @@ namespace Chat_Room
                                         //建立新的会话
                                         int l = ChatID.Length / 10;
                                         List<Friend> newFrds = new List<Friend>();
-                                        string conMsg = Message.CON + userID + "1" + Recv.Substring(14);
+                                        string conMsg = Message.CON + user.ID + "1" + Recv.Substring(14);
                                         //为新成员建立Friend类
                                         for (int j = 0; j < l; j++)
                                         {
                                             string idname = ChatID.Substring(j * 10, 10);
-                                            if (idname == userID || idname == theFrd.ID) continue;
+                                            if (idname == user.ID || idname == theFrd.ID) continue;
                                             //新的好友？
                                             int fdin = Frds.FindIndex(x => x.ID == idname);
                                             if (fdin == -1)
@@ -840,8 +855,8 @@ namespace Chat_Room
                                             else
                                             {
                                                 newFrds.Add(Frds[fdin]);
-                                                string ip = friendsQuery(idname);
-                                                if (!isIP(ip))
+                                                string ip = FriendsQuery(idname);
+                                                if (!IsIP(ip))
                                                 {
                                                     MessageBox.Show("发生错误： " + idname + " 不在线");
                                                     return;
@@ -861,7 +876,7 @@ namespace Chat_Room
                                         newchat = new Chat(newFrds, Gname);
                                         Chats.Add(newchat);
                                         newchat.state = Chat.CHATSTATE.ONCHAT;
-                                        listViewUpdate();
+                                        UpdateChats();
                                     }
                                     else
                                     {//拒绝加入
@@ -869,7 +884,7 @@ namespace Chat_Room
                                     }
                                 }
                                 //似乎这里不需要重绘了
-                                listViewUpdate();
+                                UpdateChats();
                                 switchChat2(newchat);
                             }
                         }
@@ -911,14 +926,14 @@ namespace Chat_Room
                                             //当前对话直接将消息绘制,即增加最后一条
                                             if (theChat.state == Chat.CHATSTATE.ONCHAT)
                                             {
-                                                addChatList(newDa);
+                                                addOutputBox(newDa);
                                                 theChat.unRead = 0;
                                             }
                                             else
                                             {
                                                 theChat.state = Chat.CHATSTATE.NEWS;
                                                 //重绘 更新会话列表
-                                                listViewUpdate();
+                                                UpdateChats();
                                             }
                                         }
                                         else
@@ -937,14 +952,14 @@ namespace Chat_Room
                                         //当前对话直接将消息绘制,即增加最后一条
                                         if (theChat.state == Chat.CHATSTATE.ONCHAT)
                                         {
-                                            addChatList(newDa);
+                                            addOutputBox(newDa);
                                             theChat.unRead = 0;
                                         }
                                         else
                                         {
                                             theChat.state = Chat.CHATSTATE.NEWS;
                                             //重绘 更新会话列表
-                                            listViewUpdate();
+                                            UpdateChats();
                                         }
                                         Shake shake = new Shake(Window_Shake);
                                         Invoke(shake, new object[] { });
@@ -1003,9 +1018,10 @@ namespace Chat_Room
                 MessageBox.Show("和" + theFrd.Name + " 连接中断", "信息提示",
                                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 theFrd.online = false;
-                listViewUpdate();
+                UpdateChats();
             }
         }
+        //文件接收
         void fileRecieve(string filename,long fileLength,Friend curFrd,Chat theChat)
         {
             string fileNameSuffix = filename.Substring(filename.LastIndexOf('.')); //文件后缀
@@ -1019,7 +1035,7 @@ namespace Chat_Room
                 Console.WriteLine("正在保存来自" + curFrd.Name + "的文件");
                 chatData newda = new chatData(curFrd.Name, false, "发送了 " + filename, DateTime.Now);
                 theChat.Datas.Add(newda);
-                addChatList(newda);
+                addOutputBox(newda);
 
                 byte[] buffer = new byte[1000000];
                 string savePath = sfDialog.FileName; //获取文件的全路径
@@ -1042,20 +1058,20 @@ namespace Chat_Room
                 string fPath = savePath.Substring(0, savePath.LastIndexOf("\\")); //文件路径 不带文件名
                 newda = new chatData(user.Name, true, "接收了 " + fName + "\r\n保存路径为:" + fPath, DateTime.Now);
                 theChat.Datas.Add(newda);
-                addChatList(newda);
+                addOutputBox(newda);
             }
         }
         private delegate void FileSave(string filename, long fileLength, Friend curFrd, Chat theChat);
 
         #endregion
-        #region 发起连接
+        #region 发起连接&信息发送
 
         // 对某个ID对应的学号发起连接，并传递信息
         public Socket connect2other(string ID, string Msg)
         {
-            string IPstr = friendsQuery(ID);
+            string IPstr = FriendsQuery(ID);
             Console.WriteLine("Connect to ID: " + ID + "  IPstr: " + IPstr);
-            if (!isIP(IPstr))
+            if (!IsIP(IPstr))
             {
                 Console.WriteLine("Connect to ID: " + ID + "  IPstr: " + IPstr);
                 throw new Exception("IP地址异常");
@@ -1069,6 +1085,7 @@ namespace Chat_Room
             return tcpClient;
         }
         //--发起聊天--
+
         //单独
         private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -1078,7 +1095,7 @@ namespace Chat_Room
             {
                 return;
             }
-            if (selected[0].SubItems[2].Text == userID) return;//或者本机聊天？
+            if (selected[0].SubItems[2].Text == user.ID) return;//或者本机聊天？
 
             string destID = selected[0].SubItems[2].Text;
             int destInd = Chats.FindIndex(x => x.ID == destID);
@@ -1087,7 +1104,7 @@ namespace Chat_Room
             if (theChat.state < Chat.CHATSTATE.LINK)
             {
                 //发起连接请求                
-                string conMsg = Message.CON + userID;
+                string conMsg = Message.CON + user.ID;
                 if (theChat.isGroup)
                 {
                     string len = theChat.memNum.ToString();
@@ -1118,45 +1135,7 @@ namespace Chat_Room
             {
                 switchChat2(theChat);
             }
-            listViewUpdate();
-        }
-        void switchChat2(Chat theChat)
-        {
-            int count = 0;
-            foreach (Chat c in Chats)
-                if (c.state == Chat.CHATSTATE.ONCHAT) count++;
-            if (count == 1 && theChat.state == Chat.CHATSTATE.ONCHAT) return;
-
-            ChatListClear();
-            addChatList(theChat.Datas);
-            
-                foreach (Chat c in Chats)   //清除正在聊天
-                    if (c.state == Chat.CHATSTATE.ONCHAT)
-                        c.state = Chat.CHATSTATE.LINK;
-            theChat.state = Chat.CHATSTATE.ONCHAT;
-
-            if (label_RoomName.InvokeRequired)
-            {
-                // 当一个控件的InvokeRequired属性值为真时，说明有一个创建它以外的线程想访问它
-                Action<string> actionDelegate = (x) => { label_RoomName.Text = x; };
-                this.label_RoomName.Invoke(actionDelegate, theChat.Name);
-            }
-            else
-            {
-                label_RoomName.Text = theChat.Name;
-            }
-            theChat.unRead = 0;
-            listViewUpdate();
-        }
-        void listViewUpdate()
-        {
-            //更新会话列表
-            while (listviewUsing) { };
-            listviewUsing = true;   //占用之
-            UpdateChatList cl = new UpdateChatList(DrawChatList);
-            this.Invoke(cl, new object[] { Chats });
-            listviewUsing = false;  //恢复不被占用
-
+            UpdateChats();
         }
         //群聊       
         private void button_initGrp_Click(object sender, EventArgs e)
@@ -1185,7 +1164,7 @@ namespace Chat_Room
             string GID = "";
             foreach (ListViewItem item in selected)
             {
-                if (item.SubItems[2].Text == userID)
+                if (item.SubItems[2].Text == user.ID)
                 {
                     if (n == 2) return;//单人
                     n--;
@@ -1218,7 +1197,7 @@ namespace Chat_Room
 
                     string len = newGp.memNum.ToString();
                     while (len.Length < 2) len = "0" + len;
-                    string conMsg = Message.CON + userID + "1" + len + newGp.ID + newGp.Name;
+                    string conMsg = Message.CON + user.ID + "1" + len + newGp.ID + newGp.Name;
                     
                     //Socket[] p2ps = new Socket[n];
                     for(int i = 0; i < n; i++)
@@ -1246,7 +1225,7 @@ namespace Chat_Room
                             }
                     }
                     Chats.Add(newGp);
-                    listViewUpdate();
+                    UpdateChats();
                 }
             }
             else
@@ -1257,32 +1236,63 @@ namespace Chat_Room
             }
         }
         #endregion
-        #region 聊天
+        #region 聊天 - 右侧界面
+        //--绘制聊天框内容
 
-        //聊天界面
+            //切换到该对话
+        void switchChat2(Chat theChat)
+        {
+            int count = 0;
+            foreach (Chat c in Chats)
+                if (c.state == Chat.CHATSTATE.ONCHAT) count++;
+            if (count == 1 && theChat.state == Chat.CHATSTATE.ONCHAT) return;
+
+            OutputBoxClear();
+            addOutputBox(theChat.Datas);
+
+            foreach (Chat c in Chats)   //清除正在聊天
+                if (c.state == Chat.CHATSTATE.ONCHAT)
+                    c.state = Chat.CHATSTATE.LINK;
+            theChat.state = Chat.CHATSTATE.ONCHAT;
+
+            if (label_RoomName.InvokeRequired)
+            {
+                // 当一个控件的InvokeRequired属性值为真时，说明有一个创建它以外的线程想访问它
+                Action<string> actionDelegate = (x) => { label_RoomName.Text = x; };
+                this.label_RoomName.Invoke(actionDelegate, theChat.Name);
+            }
+            else
+            {
+                label_RoomName.Text = theChat.Name;
+            }
+            theChat.unRead = 0;
+            UpdateChats();
+        }
+        private delegate void UpdateOutputBox(List<chatData> cd);
         bool outputBoxWritting = false;
-        void addChatList(chatData cd)
+        void addOutputBox(chatData cd)
         {
             while (outputBoxWritting) { };
             outputBoxWritting = true;   //占用之
-            RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
-            List<chatData> drawC = new List<chatData>();
-            drawC.Add(cd);
+            UpdateOutputBox rb_s = new UpdateOutputBox(DrawChatOutput);
+            List<chatData> drawC = new List<chatData>
+            {
+                cd
+            };
             this.Invoke(rb_s, new object[] { drawC });
             outputBoxWritting = false;  //恢复不被占用
         }
-        void addChatList(List<chatData> cd)
+        void addOutputBox(List<chatData> cd)
         {
             while (outputBoxWritting) { };
             outputBoxWritting = true;   //占用之
-            RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
+            UpdateOutputBox rb_s = new UpdateOutputBox(DrawChatOutput);
             this.Invoke(rb_s, new object[] { cd });
             outputBoxWritting = false;  //恢复不被占用
         }
-        private delegate void RichBox_Show(List<chatData> cd);
-        void ChatListClear()
+        //清空 //委托的两种写法
+        void OutputBoxClear()
         {
-            //清除聊天框
             while (outputBoxWritting) { };
             outputBoxWritting = true;
             if (richTextBox_output.InvokeRequired)
@@ -1297,18 +1307,20 @@ namespace Chat_Room
             }
             outputBoxWritting = false;  //恢复不被占用
         }
-        public void DrawChatOutput(List<chatData> cd)
+        //绘制聊天记录
+        void DrawChatOutput(List<chatData> cd)
         {
             HorizontalAlignment ha;
-            for(int i = 0; i < cd.Count; i++)
+            for (int i = 0; i < cd.Count; i++)
             {
                 ShowMsg_inRichTextBox(cd[i].time.ToShortTimeString() + "\n", Color.Black, HorizontalAlignment.Center);
                 if (cd[i].isself) ha = HorizontalAlignment.Right; else ha = HorizontalAlignment.Left;
-                ShowMsg_inRichTextBox(cd[i].speakerName+"\n", Color.Black, ha);
-                ShowMsg_inRichTextBox(cd[i].context+"\n", Color.Black, ha);
+                ShowMsg_inRichTextBox(cd[i].speakerName + "\n", Color.Black, ha);
+                ShowMsg_inRichTextBox(cd[i].context + "\n", Color.Black, ha);
             }
         }
-        public void ShowMsg_inRichTextBox(string str, Color color, HorizontalAlignment direction)
+        //在richtextBox中添加
+        void ShowMsg_inRichTextBox(string str, Color color, HorizontalAlignment direction)
         {
             richTextBox_output.SelectionColor = color;
             richTextBox_output.SelectionAlignment = direction;
@@ -1318,6 +1330,8 @@ namespace Chat_Room
             richTextBox_output.SelectionStart = richTextBox_output.TextLength;
             richTextBox_output.ScrollToCaret();
         }
+        
+        //发送信息
         private void button_send_Click(object sender, EventArgs e)
         {
             if (richTextBox_Input.Text == "")
@@ -1335,7 +1349,7 @@ namespace Chat_Room
                 return;
             }
             string inputMsg = richTextBox_Input.Text;
-            string msg = Message.MSG + userID;
+            string msg = Message.MSG + user.ID;
             if (theChat.isGroup)
             {
                 msg += '1';
@@ -1366,17 +1380,19 @@ namespace Chat_Room
             //等到其他线程解除了写字框的占用
             outputBoxWritting = true;   //占用之
                                         //新建委托
-            RichBox_Show rb_s = new RichBox_Show(DrawChatOutput);
+            UpdateOutputBox rb_s = new UpdateOutputBox(DrawChatOutput);
             chatData nda = new chatData(user.Name, true, inputMsg, DateTime.Now);
             theChat.Datas.Add(nda);
-            List<chatData> drawC = new List<chatData>();
-            drawC.Add(nda);
+            List<chatData> drawC = new List<chatData>
+            {
+                nda
+            };
             this.Invoke(rb_s, new object[] { drawC });
             outputBoxWritting = false;  //恢复不被占用
             richTextBox_Input.Text = "";
         }
         
-        //聊天记录
+        //--聊天记录
         private void button_data_Click(object sender, EventArgs e)
         {
             text inp = new text("查找聊天记录:");
@@ -1416,7 +1432,6 @@ namespace Chat_Room
         }
 
         //窗口抖动
-        //发送
         private void buttonShake_Click(object sender, EventArgs e)
         {
             Chat theChat = null;
@@ -1429,7 +1444,7 @@ namespace Chat_Room
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            string msg = Message.SHK + userID;
+            string msg = Message.SHK + user.ID;
             if (theChat.isGroup)
             {
                 msg += '1';
@@ -1457,7 +1472,6 @@ namespace Chat_Room
             timer1.Start();
         }
         int count = 0;
-
         private void timer1_Tick_1(object sender, EventArgs e)
         {
             int count1 = count % 12;
@@ -1524,7 +1538,7 @@ namespace Chat_Room
 
             //发送文件之前 将文件名字和长度发送过去
             long fileLength = new FileInfo(filePath).Length;
-            string msg = Message.FLE + userID;
+            string msg = Message.FLE + user.ID;
             if (theChat.isGroup)
             {
                 msg += '1';
@@ -1558,7 +1572,7 @@ namespace Chat_Room
                         }
                         chatData newda = new chatData(theChat.friends[i].Name, true, "接收了 " + fileName, DateTime.Now);
                         theChat.Datas.Add(newda);
-                        addChatList(newda);
+                        addOutputBox(newda);
                     }
                     catch
                     {
@@ -1569,12 +1583,7 @@ namespace Chat_Room
             label1.Visible = false;
             MessageBox.Show("文件 "+ filePath + "传输成功", "信息提示");            
         }
-
-        //--end of 聊天
-
-        //编码与发送
-
-        //
+        
         //进度条
         //https://www.w3cschool.cn/csharp/csharp-6z9g2pls.html
 
@@ -1627,8 +1636,7 @@ namespace Chat_Room
             }
             public Chat(Friend _friend)
             {
-                friends = new List<Friend>();
-                friends.Add(_friend);
+                friends = new List<Friend> { _friend };
                 ID = _friend.ID;
                 isGroup = false;
                 //serverID = "";
@@ -1680,8 +1688,10 @@ namespace Chat_Room
                         if (state < CHATSTATE.ONLINE) state = CHATSTATE.ONLINE;
                     }
                 }
-                item = new ListViewItem(str);
-                item.Tag = tag;
+                item = new ListViewItem(str)
+                {
+                    Tag = tag
+                };
                 Color bkcl = Color.Red;
                 switch (state)
                 {
@@ -1825,21 +1835,19 @@ namespace Chat_Room
             public const string RFS = "哥屋恩";
         }
 
+        //确认按键 Enter
         private void richTextBox_Input_Enter(object sender, EventArgs e)
         {
             AcceptButton = button_send;
         }
-
         private void richTextBox_Input_Leave(object sender, EventArgs e)
         {
             AcceptButton = null;
         }
-
         private void textBox_find_Enter(object sender, EventArgs e)
         {
             AcceptButton = button_find;
         }
-
         private void button_detail_Click(object sender, EventArgs e)
         {
 
